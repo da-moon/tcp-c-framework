@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	/* Create a stream socket	*/	
+	/* Create a stream socket	*/
 	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		fprintf(stderr, "Can't creat a socket\n");
 		exit(1);
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	bzero((char *)&server, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
-	if (hp = gethostbyname(host)) 
+	if (hp = gethostbyname(host))
 	  bcopy(hp->h_addr, (char *)&server.sin_addr, hp->h_length);
 	else if ( inet_aton(host, (struct in_addr *) &server.sin_addr) ){
 	  fprintf(stderr, "Can't get server's address\n");
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	}
 
 	char *source = NULL;
-	FILE *fp = fopen("output.txt", "r");
+	FILE *fp = fopen("test.txt", "r");
 	if (fp != NULL) {
     /* Go to the end of the file. */
 	if (fseek(fp, 0L, SEEK_END) == 0) {
@@ -77,13 +77,13 @@ int main(int argc, char **argv)
             fputs("Error reading file", stderr);
         } else {
             source[newLen++] = '\0'; /* Just to be safe. */
-		
-        }
 
+        }
     }
     fclose(fp);
+    // printf("%s\n",source);
 	while(n=read(0, source, BUFLEN)){	/* get user message */
-	  write(sd, source, n);		/* send it out */
+      write(sd, source, n);		/* send it out */
 	  printf("Receive: \n");
 	  bp = rbuf;
 	  bytes_to_read = n;
@@ -97,8 +97,6 @@ int main(int argc, char **argv)
 }
 
 free(source);
-
-	// close(fd);
 	close(sd);
 	return(0);
 }
