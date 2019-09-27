@@ -81,8 +81,7 @@ int main(int argc, char **argv)
         }
     }
     fclose(fp);
-    // printf("%s\n",source);
-	while(n=read(0, source, BUFLEN)){	/* get user message */
+	// while(n=read(0, source, BUFLEN)){	/* get user message */
       write(sd, source, n);		/* send it out */
 	  printf("Receive: \n");
 	  bp = rbuf;
@@ -93,7 +92,7 @@ int main(int argc, char **argv)
 	  }
 	  write(1, rbuf, n);
 	  printf("Transmit: \n");
-	}
+	// }
 }
 
 free(source);

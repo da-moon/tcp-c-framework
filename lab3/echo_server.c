@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	/* Create a stream socket	*/	
+	/* Create a stream socket	*/
 	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
 		fprintf(stderr, "Can't creat a socket\n");
 		exit(1);
@@ -79,7 +79,7 @@ int echod(int sd)
 	char	*bp, buf[BUFLEN];
 	int 	n, bytes_to_read;
 
-	while(n = read(sd, buf, BUFLEN)) 
+	while(n = read(sd, buf, BUFLEN))
 		write(sd, buf, n);
 	close(sd);
 

@@ -4,6 +4,33 @@
 #	David L Stevens, Internetworking Research Group at Purdue
 #	Tue Sep 17 19:40:42 EST 1991
 #
+# OS specific part
+# -----------------
+ifeq ($(OS),Windows_NT)
+    CLEAR = cls
+    LS = dir
+    TOUCH =>>
+    RM = del /F /Q
+    CPF = copy /y
+    RMDIR = -RMDIR /S /Q
+    MKDIR = -mkdir
+    CMDSEP = &
+    ERRIGNORE = 2>NUL || (exit 0)
+    GO_PATH = $(subst \,/,${GOPATH})
+    SEP=\\
+else
+    CLEAR = clear
+    GO_PATH = ${GOPATH}
+    LS = ls
+    TOUCH = touch
+    CPF = cp -f
+    RM = rm -rf
+    RMDIR = rm -rf
+    CMDSEP = ;
+    MKDIR = mkdir -p
+    ERRIGNORE = 2>/dev/null
+    SEP=/
+endif
 
 CC = gcc
 
@@ -12,13 +39,15 @@ INCLUDE =
 
 DEFS =
 CFLAGS = ${DEFS} ${INCLUDE}
-
+.PHONY:  echo_client echo_server test_file clean depend install lint
 echo_client:
-	${CC} -o echo_client echo_client.c -lnsl  
-
+	- $(RM) ./echo_client
+	- ${CC} -o echo_client echo_client.c -lnsl
+	- $(CLEAR)
 echo_server:
-	${CC} -o echo_server echo_server.c  -lnsl
-
+	- $(RM) ./echo_server
+	- ${CC} -o echo_server echo_server.c  -lnsl
+	- $(CLEAR)
 test_file:
 	${CC} -o main main.c  -lnsl
 
@@ -62,7 +91,7 @@ sonnet: sonnet.o
 sonnetd: sonnetd.o
 
 FRC:
-	
+
 # DO NOT DELETE THIS LINE - maketd DEPENDS ON IT
 S=/usr/include/sys
 I=/usr/include
@@ -94,7 +123,7 @@ superd.o: $I/netinet/in.h $I/signal.h $I/stdio.h $S/errno.h \
 
 sonnetd.o: $I/netinet/in.h $I/signal.h $I/stdio.h $S/errno.h \
 	$S/param.h $S/signal.h $S/types.h $S/wait.h sonnetd.c
-		 
+
 sonnet.o: $I/netinet/in.h $I/signal.h $I/stdio.h $S/errno.h \
 	$S/param.h $S/signal.h $S/types.h $S/wait.h sonnet.c
 
