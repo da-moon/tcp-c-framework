@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	/* queue up to 5 connect requests  */
+	/* Queue up to 5 connect requests  */
 	listen(sd, 5);
 
 	(void) signal(SIGCHLD, reaper);
