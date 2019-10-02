@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
         perror("listen failed: ");
         exit(1);
     }
-
     SERVER Run(socketFd,(void *)&HANDLER RequestHandler);
     close(socketFd);
 }

@@ -10,8 +10,9 @@ int num_handlers = 0 ;
 //Spawns the new client handler thread and message consumer thread
 SERVER void Run(int socketFd,void *(*handler) (void *))
 {
-    mux.numClients = 0;
-    mux.socketFd = socketFd;
+    mux.conn = malloc(sizeof *mux.conn);
+    mux.conn->numClients=0;
+    mux.conn->socketFd=socketFd;
     mux.Queue = QUEUE  New();
     mux.clientListMutex = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(mux.clientListMutex, NULL);
@@ -38,8 +39,7 @@ SERVER void Run(int socketFd,void *(*handler) (void *))
     QUEUE Destroy(mux.Queue);
     pthread_mutex_destroy(mux.clientListMutex);
     free(mux.clientListMutex);
-}
-SERVER void AddHandler(char *name,void *(*handler) (void *)){
+    free(mux.conn);
 }
 //Sets up and binds the socket
 SERVER void Bind(struct sockaddr_in *serverAddr, int socketFd, long port)

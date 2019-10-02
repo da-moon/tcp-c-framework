@@ -9,20 +9,21 @@ MULTIPLEXER void *Multiplex(void *data)
     Multiplexer *chatData = (Multiplexer *) data;
     while(1)
     {
-        int clientSocketFd = accept(chatData->socketFd, NULL, NULL);
+        // int clientSocketFd = accept(chatData->socketFd, NULL, NULL);
+        int clientSocketFd = accept((chatData->conn)->socketFd, NULL, NULL);
         if(clientSocketFd > 0)
         {
             fprintf(stderr, "MULTIPLEXER accepted new client. Socket: %d\n", clientSocketFd);
             //Obtain lock on clients list and add new client in
             pthread_mutex_lock(chatData->clientListMutex);
-            if(chatData->numClients < CONSTS MAX_BUFFER)
+            if((chatData->conn)->numClients < CONSTS MAX_BUFFER)
             {
                 //Add new client to list
                 for(int i = 0; i < CONSTS MAX_BUFFER; i++)
                 {
-                    if(!FD_ISSET(chatData->clientSockets[i], &(chatData->readFds)))
+                    if(!FD_ISSET((chatData->conn)->clientSockets[i], &(chatData->readFds)))
                     {
-                        chatData->clientSockets[i] = clientSocketFd;
+                        (chatData->conn)->clientSockets[i] = clientSocketFd;
                         i = CONSTS MAX_BUFFER;
                     }
                 }
@@ -37,7 +38,7 @@ MULTIPLEXER void *Multiplex(void *data)
                 pthread_t clientThread;
                 if((pthread_create(&clientThread, NULL, (void *)&ClientHandler, (void *)&chv)) == 0)
                 {
-                    chatData->numClients++;
+                    (chatData->conn)->numClients++;
                     fprintf(stderr, "Client connection to server has been successfully multiplexed on socket: %d\n", clientSocketFd);
                 }
                 else
@@ -48,17 +49,39 @@ MULTIPLEXER void *Multiplex(void *data)
     }
 }
 
+//The "consumer" -- waits for the Queue to have messages then takes them out and broadcasts to clients
+MULTIPLEXER void *RequestHandler(void *data)
+{
+    MULTIPLEXER Multiplexer *mux = (Multiplexer *)data;
+    while(1)
+    {
+        //Obtain lock and pop message from Queue when not empty
+        pthread_mutex_lock((mux->Queue)->mutex);
+        while((mux->Queue)->empty)
+        {
+            pthread_cond_wait((mux->Queue)->notEmpty, (mux->Queue)->mutex);
+        }
+        char* msg = QUEUE Pop(mux->Queue);
+        pthread_mutex_unlock((mux->Queue)->mutex);
+        pthread_cond_signal((mux->Queue)->notFull);
+        fprintf(stderr, "recieved message: %s\n", msg);
+        fprintf(stderr, "Broadcasting .... \n");
+
+        HANDLER ProtocolHandler("Chat-v1",mux->conn,msg);
+    }
+}
+
 //Removes the socket from the list of active client sockets and closes it
 MULTIPLEXER void Disconnect(Multiplexer *data, int clientSocketFd)
 {
     pthread_mutex_lock(data->clientListMutex);
     for(int i = 0; i < CONSTS MAX_BUFFER; i++)
     {
-        if(data->clientSockets[i] == clientSocketFd)
+        if((data->conn)->clientSockets[i] == clientSocketFd)
         {
-            data->clientSockets[i] = 0;
+            (data->conn)->clientSockets[i] = 0;
             close(clientSocketFd);
-            data->numClients--;
+            (data->conn)->numClients--;
             i = CONSTS MAX_BUFFER;
         }
     }

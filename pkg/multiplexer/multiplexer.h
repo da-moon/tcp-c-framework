@@ -2,6 +2,8 @@
 #define MULTIPLEXER
     #include "../shared/consts.h"
     #include "../queue/queue.h"
+    #include "../handler/handler.h"
+
     #include <stdio.h>
     // accept
     #include <netdb.h>
@@ -16,12 +18,14 @@
     // the server's socket for new connections, and the message Queue
     typedef struct {
         fd_set readFds;
-        int socketFd;
-        int clientSockets[CONSTS MAX_BUFFER];
-        int numClients;
+        // int socketFd;
+        // int clientSockets[CONSTS MAX_BUFFER];
+        // int numClients;
+        HANDLER Connection *conn;
         pthread_mutex_t *clientListMutex;
         QUEUE Queue *Queue;
     } Multiplexer;
+
     // Simple struct to hold the Multiplexer and the new client's socket fd.
     // Used only in the client handler thread.
     typedef struct {
@@ -32,6 +36,6 @@
     void Disconnect(Multiplexer *data, int clientSocketFd);
     void *ClientHandler(void *chv);
     void *RequestHandler(void *data);
-    void *FileHandler(void *data);
-    char *trimmsg(char *str);
+    // void *FileHandler(void *data);
+    // char *trimmsg(char *str);
 #endif
