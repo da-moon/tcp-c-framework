@@ -28,7 +28,7 @@
         Multiplexer *data;
         int clientSocketFd;
     } Payload;
-    void *Connect(void *data);
+    void *Multiplex(void *data);
     void Disconnect(Multiplexer *data, int clientSocketFd);
     void *ClientHandler(void *chv);
     void *RequestHandler(void *data);

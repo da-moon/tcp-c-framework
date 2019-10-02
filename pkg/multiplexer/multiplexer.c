@@ -1,7 +1,7 @@
 #include "multiplexer.h"
 
 //Thread to handle new connections. Adds client's fd to list of client fds and spawns a new ClientHandler thread for it
-MULTIPLEXER void *Connect(void *data)
+MULTIPLEXER void *Multiplex(void *data)
 {
     Multiplexer *chatData = (Multiplexer *) data;
     while(1)

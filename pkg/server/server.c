@@ -11,9 +11,9 @@ SERVER void Run(int socketFd)
 
     //Start thread to handle new client connections
     pthread_t connectionThread;
-    if((pthread_create(&connectionThread, NULL, (void *)&MULTIPLEXER Connect, (void *)&data)) == 0)
+    if((pthread_create(&connectionThread, NULL, (void *)&MULTIPLEXER Multiplex, (void *)&data)) == 0)
     {
-        fprintf(stderr, "Connection handler started\n");
+        fprintf(stderr, "Multiplexed Connection to client\n");
     }
 
     FD_ZERO(&(data.readFds));
