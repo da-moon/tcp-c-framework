@@ -94,7 +94,6 @@ MULTIPLEXER void *ClientHandler(void *chv)
     Multiplexer *data = (Multiplexer *)vars->data;
 
     QUEUE Queue *q = data->Queue;
-    // int clientSocketFd = vars->clientSocketFd;
     int clientSocketFd = data->clientSocketFd;
 
     char msgBuffer[CONSTS MAX_BUFFER];
@@ -103,7 +102,8 @@ MULTIPLEXER void *ClientHandler(void *chv)
         int numBytesRead = read(clientSocketFd, msgBuffer, CONSTS MAX_BUFFER - 1);
         msgBuffer[numBytesRead] = '\0';
 
-        //If the client sent /exit\n, remove them from the client list and close their socket
+        // If the client sent /exit\n,
+        // remove them from the client list and close their socket
         if(strcmp(msgBuffer, "/exit\n") == 0)
         {
             fprintf(stderr, "Client on socket %d has disconnected.\n", clientSocketFd);

@@ -13,7 +13,7 @@
 #include <signal.h>
 #include  "../../pkg/shared/consts.h"
 
-void chatloop(char *name, int socketFd);
+void Loop(char *name, int socketFd);
 void buildMessage(char *result, char *name, char *msg);
 void setupAndConnect(struct sockaddr_in *serverAddr, struct hostent *host, int socketFd, long port);
 void setNonBlock(int fd);
@@ -53,14 +53,14 @@ int main(int argc, char *argv[])
     //Set a handler for the interrupt signal
     signal(SIGINT, interruptHandler);
 
-    chatloop(name, socketFd);
+    Loop(name, socketFd);
 }
 
-//Main loop to take in chat input and display output
-void chatloop(char *name, int socketFd)
+//Main loop to take in input and display output result from server
+void Loop(char *name, int socketFd)
 {
     fd_set clientFds;
-    char chatMsg[CONSTS MAX_BUFFER];
+    char payloadMessage[CONSTS MAX_BUFFER];
     char payloadBuffer[CONSTS MAX_BUFFER], msgBuffer[CONSTS MAX_BUFFER];
 
     while(1)
@@ -75,23 +75,25 @@ void chatloop(char *name, int socketFd)
             {
                 if(FD_ISSET(fd, &clientFds))
                 {
-                    if(fd == socketFd) //receive data from server
+                    //receive data from server
+                    if(fd == socketFd)
                     {
                         int numBytesRead = read(socketFd, msgBuffer, CONSTS MAX_BUFFER - 1);
                         msgBuffer[numBytesRead] = '\0';
                         printf("%s", msgBuffer);
                         memset(&msgBuffer, 0, sizeof(msgBuffer));
                     }
-                    else if(fd == 0) //read from keyboard (stdin) and send to server
+                    //read from keyboard (stdin) and send to server
+                    else if(fd == 0)
                     {
                         fgets(payloadBuffer, CONSTS MAX_BUFFER - 1, stdin);
                         if(strcmp(payloadBuffer, "/exit\n") == 0)
-                            interruptHandler(-1); //Reuse the interruptHandler function to disconnect the client
+                            //Reuse the interruptHandler function to disconnect the client
+                            interruptHandler(-1);
                         else
                         {
-                            buildMessage(chatMsg, name, payloadBuffer);
-                            if(write(socketFd, chatMsg, CONSTS MAX_BUFFER - 1) == -1) perror("write failed: ");
-                            //printf("%s", chatMsg);
+                            buildMessage(payloadMessage, name, payloadBuffer);
+                            if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1) perror("write failed: ");
                             memset(&payloadBuffer, 0, sizeof(payloadBuffer));
                         }
                     }
