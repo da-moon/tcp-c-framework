@@ -60,9 +60,6 @@ int main(int argc, char *argv[])
 void Loop(char *name, int socketFd)
 {
     fd_set clientFds;
-    char payloadMessage[CONSTS MAX_BUFFER];
-    char payloadBuffer[CONSTS MAX_BUFFER];
-    char msgBuffer[CONSTS MAX_BUFFER];
 
     while(1)
     {
@@ -79,6 +76,7 @@ void Loop(char *name, int socketFd)
                     //receive data from server
                     if(fd == socketFd)
                     {
+                        char msgBuffer[CONSTS MAX_BUFFER];
                         int numBytesRead = read(socketFd, msgBuffer, CONSTS MAX_BUFFER - 1);
                         msgBuffer[numBytesRead] = '\0';
                         printf("%s", msgBuffer);
@@ -87,12 +85,14 @@ void Loop(char *name, int socketFd)
                     //read from keyboard (stdin) and send to server
                     else if(fd == 0)
                     {
+                        char payloadBuffer[CONSTS MAX_BUFFER];
                         fgets(payloadBuffer, CONSTS MAX_BUFFER - 1, stdin);
                         if(strcmp(payloadBuffer, "/exit\n") == 0)
                             //Reuse the interruptHandler function to disconnect the client
                             interruptHandler(-1);
                         else
                         {
+                            char payloadMessage[CONSTS MAX_BUFFER];
                             buildMessage(payloadMessage, name, payloadBuffer);
                             if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
                             {
@@ -111,8 +111,8 @@ void Loop(char *name, int socketFd)
 void buildMessage(char *result, char *name, char *msg)
 {
     memset(result, 0, CONSTS MAX_BUFFER);
-    strcpy(result, name);
-    strcat(result, ": ");
+    // strcpy(result, name);
+    // strcat(result, ": ");
     strcat(result, msg);
 }
 
