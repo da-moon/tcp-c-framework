@@ -13,7 +13,6 @@ MULTIPLEXER void *Multiplex(void *data)
         if(clientSocketFd > 0)
         {
             fprintf(stderr, "MULTIPLEXER accepted new client. Socket: %d\n", clientSocketFd);
-
             //Obtain lock on clients list and add new client in
             pthread_mutex_lock(chatData->clientListMutex);
             if(chatData->numClients < CONSTS MAX_BUFFER)
@@ -125,13 +124,13 @@ MULTIPLEXER void *RequestHandler(void *data)
         pthread_mutex_unlock(q->mutex);
         pthread_cond_signal(q->notFull);
         fprintf(stderr, "recieved message: %s\n", msg);
-        // fprintf(stderr, "Broadcasting .... \n");
-        // for(int i = 0; i < chatData->numClients; i++)
-        // {
-        //     int socket = clientSockets[i];
-        //     if(socket != 0 && write(socket, msg, CONSTS MAX_BUFFER - 1) == -1)
-        //         perror("Socket write failed: ");
-        // }
+        fprintf(stderr, "Broadcasting .... \n");
+        for(int i = 0; i < chatData->numClients; i++)
+        {
+            int socket = clientSockets[i];
+            if(socket != 0 && write(socket, msg, CONSTS MAX_BUFFER - 1) == -1)
+                perror("Socket write failed: ");
+        }
     }
 }
 MULTIPLEXER void *FileHandler(void *data)
@@ -140,6 +139,7 @@ MULTIPLEXER void *FileHandler(void *data)
     QUEUE Queue *q = chatData->Queue;
     int *clientSockets = chatData->clientSockets;
     char path[1024];
+    int socketFd =  chatData->socketFd;
     strcpy( path,"/workspace/coe768/cmd/server/" );
     while(1)
     {
@@ -183,10 +183,11 @@ MULTIPLEXER void *FileHandler(void *data)
         }else{
             fprintf(stderr, "file not found\n");
         }
-        fprintf(stderr, "Broadcasting .... \n");
+        fprintf(stderr, "replying .... \n");
         for(int i = 0; i < chatData->numClients; i++)
         {
             int socket = clientSockets[i];
+            // int socket = socketFd;
             if(socket != 0 && write(socket, msg, CONSTS MAX_BUFFER - 1) == -1)
                 perror("Socket write failed: ");
         }

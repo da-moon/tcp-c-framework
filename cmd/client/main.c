@@ -61,7 +61,7 @@ void chatloop(char *name, int socketFd)
 {
     fd_set clientFds;
     char chatMsg[CONSTS MAX_BUFFER];
-    char chatBuffer[CONSTS MAX_BUFFER], msgBuffer[CONSTS MAX_BUFFER];
+    char payloadBuffer[CONSTS MAX_BUFFER], msgBuffer[CONSTS MAX_BUFFER];
 
     while(1)
     {
@@ -84,15 +84,15 @@ void chatloop(char *name, int socketFd)
                     }
                     else if(fd == 0) //read from keyboard (stdin) and send to server
                     {
-                        fgets(chatBuffer, CONSTS MAX_BUFFER - 1, stdin);
-                        if(strcmp(chatBuffer, "/exit\n") == 0)
+                        fgets(payloadBuffer, CONSTS MAX_BUFFER - 1, stdin);
+                        if(strcmp(payloadBuffer, "/exit\n") == 0)
                             interruptHandler(-1); //Reuse the interruptHandler function to disconnect the client
                         else
                         {
-                            buildMessage(chatMsg, name, chatBuffer);
+                            buildMessage(chatMsg, name, payloadBuffer);
                             if(write(socketFd, chatMsg, CONSTS MAX_BUFFER - 1) == -1) perror("write failed: ");
                             //printf("%s", chatMsg);
-                            memset(&chatBuffer, 0, sizeof(chatBuffer));
+                            memset(&payloadBuffer, 0, sizeof(payloadBuffer));
                         }
                     }
                 }
@@ -105,8 +105,8 @@ void chatloop(char *name, int socketFd)
 void buildMessage(char *result, char *name, char *msg)
 {
     memset(result, 0, CONSTS MAX_BUFFER);
-    // strcpy(result, name);
-    // strcat(result, ": ");
+    strcpy(result, name);
+    strcat(result, ": ");
     strcat(result, msg);
 }
 
