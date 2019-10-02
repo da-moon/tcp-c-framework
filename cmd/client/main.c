@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Couldn't create socket\n");
         exit(1);
     }
-    setupAndConnect(&serverAddr, host, socketFd, port);
+    // setupAndConnect(&serverAddr, host, socketFd, port);
     setNonBlock(socketFd);
     setNonBlock(0);
 
@@ -93,7 +93,10 @@ void Loop(char *name, int socketFd)
                         else
                         {
                             buildMessage(payloadMessage, name, payloadBuffer);
-                            if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1) perror("write failed: ");
+                            if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
+                            {
+                                perror("write failed: ");
+                            }
                             memset(&payloadBuffer, 0, sizeof(payloadBuffer));
                         }
                     }
