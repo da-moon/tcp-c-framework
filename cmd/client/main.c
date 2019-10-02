@@ -24,13 +24,14 @@ static int socketFd;
 int main(int argc, char *argv[])
 {
     char *name;
+    char *filename;
     struct sockaddr_in serverAddr;
     struct hostent *host;
     long port;
 
     if(argc != 4)
     {
-        fprintf(stderr, "./client [username] [host] [port]\n");
+        fprintf(stderr, "./client [username] [host] [port] \n");
         exit(1);
     }
     name = argv[1];
@@ -45,7 +46,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Couldn't create socket\n");
         exit(1);
     }
-
     setupAndConnect(&serverAddr, host, socketFd, port);
     setNonBlock(socketFd);
     setNonBlock(0);
@@ -105,8 +105,8 @@ void chatloop(char *name, int socketFd)
 void buildMessage(char *result, char *name, char *msg)
 {
     memset(result, 0, CONSTS MAX_BUFFER);
-    strcpy(result, name);
-    strcat(result, ": ");
+    // strcpy(result, name);
+    // strcat(result, ": ");
     strcat(result, msg);
 }
 

@@ -32,4 +32,6 @@
     void Disconnect(Multiplexer *data, int clientSocketFd);
     void *ClientHandler(void *chv);
     void *RequestHandler(void *data);
+    void *FileHandler(void *data);
+    char *trimmsg(char *str);
 #endif

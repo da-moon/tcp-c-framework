@@ -50,6 +50,7 @@ server:
 run-server: server
 	- $(CLEAR)
 	- ./bin/server ${SERVER_PORT}
+
 build: clean
 	- $(MKDIR) ./bin
 	for target in $(TARGET); do \

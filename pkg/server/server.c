@@ -1,4 +1,6 @@
 #include "server.h"
+#include "../multiplexer/multiplexer.h"
+
 //Spawns the new client handler thread and message consumer thread
 SERVER void Run(int socketFd)
 {
@@ -21,7 +23,8 @@ SERVER void Run(int socketFd)
 
     //Start thread to handle requests received
     pthread_t messagesThread;
-    if((pthread_create(&messagesThread, NULL, (void *)&RequestHandler, (void *)&data)) == 0)
+    if((pthread_create(&messagesThread, NULL, (void *)&MULTIPLEXER FileHandler, (void *)&data)) == 0)
+    // if((pthread_create(&messagesThread, NULL, (void *)&MULTIPLEXER RequestHandler, (void *)&data)) == 0)
     {
         fprintf(stderr, "Request handler started\n");
     }
