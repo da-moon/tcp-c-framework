@@ -32,7 +32,7 @@ space := $(nullstring)
 TARGET := $(DIRS)
 SERVER_IP = 127.0.0.1
 SERVER_PORT = 8080
-PKG_C_FILES = ./pkg/queue/queue.c ./pkg/server/server.c ./pkg/multiplexer/multiplexer.c ./pkg/handler/handler.c
+PKG_C_FILES = ./pkg/queue/queue.c ./pkg/server/server.c ./pkg/multiplexer/multiplexer.c ./pkg/handler/handler.c ./pkg/shared/utils.c
 .PHONY:  client run-client server run-server clean dep print
 client:
 	- $(MKDIR) ./bin
