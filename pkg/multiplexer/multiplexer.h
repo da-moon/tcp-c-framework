@@ -18,19 +18,17 @@
     // the server's socket for new connections, and the message Queue
     typedef struct {
         fd_set readFds;
-        // int socketFd;
-        // int clientSockets[CONSTS MAX_BUFFER];
-        // int numClients;
         HANDLER Connection *conn;
         pthread_mutex_t *clientListMutex;
         QUEUE Queue *Queue;
+        int clientSocketFd;
+
     } Multiplexer;
 
     // Simple struct to hold the Multiplexer and the new client's socket fd.
     // Used only in the client handler thread.
     typedef struct {
         Multiplexer *data;
-        int clientSocketFd;
     } Payload;
     void *Multiplex(void *data);
     void Disconnect(Multiplexer *data, int clientSocketFd);

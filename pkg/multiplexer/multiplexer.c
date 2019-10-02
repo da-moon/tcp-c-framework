@@ -6,45 +6,44 @@
 //Thread to handle new connections. Adds client's fd to list of client fds and spawns a new ClientHandler thread for it
 MULTIPLEXER void *Multiplex(void *data)
 {
-    Multiplexer *chatData = (Multiplexer *) data;
+    Multiplexer *mux = (Multiplexer *) data;
     while(1)
     {
-        // int clientSocketFd = accept(chatData->socketFd, NULL, NULL);
-        int clientSocketFd = accept((chatData->conn)->socketFd, NULL, NULL);
+        int clientSocketFd = accept((mux->conn)->socketFd, NULL, NULL);
         if(clientSocketFd > 0)
         {
             fprintf(stderr, "MULTIPLEXER accepted new client. Socket: %d\n", clientSocketFd);
             //Obtain lock on clients list and add new client in
-            pthread_mutex_lock(chatData->clientListMutex);
-            if((chatData->conn)->numClients < CONSTS MAX_BUFFER)
+            pthread_mutex_lock(mux->clientListMutex);
+            if((mux->conn)->numClients < CONSTS MAX_BUFFER)
             {
                 //Add new client to list
                 for(int i = 0; i < CONSTS MAX_BUFFER; i++)
                 {
-                    if(!FD_ISSET((chatData->conn)->clientSockets[i], &(chatData->readFds)))
+                    if(!FD_ISSET((mux->conn)->clientSockets[i], &(mux->readFds)))
                     {
-                        (chatData->conn)->clientSockets[i] = clientSocketFd;
+                        (mux->conn)->clientSockets[i] = clientSocketFd;
                         i = CONSTS MAX_BUFFER;
                     }
                 }
 
-                FD_SET(clientSocketFd, &(chatData->readFds));
+                FD_SET(clientSocketFd, &(mux->readFds));
 
                 //Spawn new thread to handle client's request
                 Payload chv;
-                chv.clientSocketFd = clientSocketFd;
-                chv.data = chatData;
+                mux->clientSocketFd = clientSocketFd;
+                chv.data = mux;
 
                 pthread_t clientThread;
                 if((pthread_create(&clientThread, NULL, (void *)&ClientHandler, (void *)&chv)) == 0)
                 {
-                    (chatData->conn)->numClients++;
+                    (mux->conn)->numClients++;
                     fprintf(stderr, "Client connection to server has been successfully multiplexed on socket: %d\n", clientSocketFd);
                 }
                 else
                     close(clientSocketFd);
             }
-            pthread_mutex_unlock(chatData->clientListMutex);
+            pthread_mutex_unlock(mux->clientListMutex);
         }
     }
 }
@@ -95,7 +94,8 @@ MULTIPLEXER void *ClientHandler(void *chv)
     Multiplexer *data = (Multiplexer *)vars->data;
 
     QUEUE Queue *q = data->Queue;
-    int clientSocketFd = vars->clientSocketFd;
+    // int clientSocketFd = vars->clientSocketFd;
+    int clientSocketFd = data->clientSocketFd;
 
     char msgBuffer[CONSTS MAX_BUFFER];
     while(1)
