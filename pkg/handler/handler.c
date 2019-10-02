@@ -3,31 +3,34 @@
 //The "consumer" -- waits for the Queue to have messages then takes them out and broadcasts to clients
 HANDLER void *RequestHandler(void *data)
 {
-    Multiplexer *chatData = (Multiplexer *)data;
-    QUEUE Queue *q = chatData->Queue;
-    int *clientSockets = chatData->clientSockets;
-
+    Multiplexer *mux = (Multiplexer *)data;
     while(1)
     {
         //Obtain lock and pop message from Queue when not empty
-        pthread_mutex_lock(q->mutex);
-        while(q->empty)
+        pthread_mutex_lock((mux->Queue)->mutex);
+        while((mux->Queue)->empty)
         {
-            pthread_cond_wait(q->notEmpty, q->mutex);
+            pthread_cond_wait((mux->Queue)->notEmpty, (mux->Queue)->mutex);
         }
-        char* msg = QUEUE Pop(q);
-        pthread_mutex_unlock(q->mutex);
-        pthread_cond_signal(q->notFull);
+        char* msg = QUEUE Pop(mux->Queue);
+        pthread_mutex_unlock((mux->Queue)->mutex);
+        pthread_cond_signal((mux->Queue)->notFull);
         fprintf(stderr, "recieved message: %s\n", msg);
         fprintf(stderr, "Broadcasting .... \n");
-        for(int i = 0; i < chatData->numClients; i++)
+        for(int i = 0; i < mux->numClients; i++)
         {
-            int socket = clientSockets[i];
-            if(socket != 0 && write(socket, msg, CONSTS MAX_BUFFER - 1) == -1)
-                perror("Socket write failed: ");
+            int socket = mux->clientSockets[i];
+            ProtocolHandler("ChatProtocol",socket,msg);
         }
     }
 }
+HANDLER void ProtocolHandler(char* name,int socket,char* payload){
+    fprintf(stderr, "PROTOCOL: [%s]\n", name);
+    if(socket != 0 && write(socket, payload, CONSTS MAX_BUFFER - 1) == -1){
+        perror("Socket write failed: ");
+    }
+}
+
 HANDLER void *FileHandler(void *data)
 {
     Multiplexer *chatData = (Multiplexer *)data;

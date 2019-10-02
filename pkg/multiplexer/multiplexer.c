@@ -38,7 +38,7 @@ MULTIPLEXER void *Multiplex(void *data)
                 if((pthread_create(&clientThread, NULL, (void *)&ClientHandler, (void *)&chv)) == 0)
                 {
                     chatData->numClients++;
-                    fprintf(stderr, "Client has joined chat. Socket: %d\n", clientSocketFd);
+                    fprintf(stderr, "Client connection to server has been successfully multiplexed on socket: %d\n", clientSocketFd);
                 }
                 else
                     close(clientSocketFd);

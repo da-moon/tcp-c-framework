@@ -6,5 +6,5 @@
 
     void Run(int socketFd,void *(*handler) (void *));
     void Bind(struct sockaddr_in *serverAddr, int socketFd, long port);
-
+    void AddHandler(char *name,void *(*handler) (void *));
 #endif
