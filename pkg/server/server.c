@@ -5,7 +5,7 @@
 // as new client join, their information would get added to mux
 MULTIPLEXER Multiplexer mux;
 //Spawns the new client handler thread and message consumer thread
-SERVER void Run(int socketFd)
+SERVER void Run(int socketFd,void *(*handler) (void *))
 {
     mux.numClients = 0;
     mux.socketFd = socketFd;
@@ -26,7 +26,8 @@ SERVER void Run(int socketFd)
     //Start thread to handle requests received
     pthread_t messagesThread;
     // if((pthread_create(&messagesThread, NULL, (void *)&MULTIPLEXER FileHandler, (void *)&data)) == 0)
-    if((pthread_create(&messagesThread, NULL, (void *)&MULTIPLEXER RequestHandler, (void *)&mux)) == 0)
+    // if((pthread_create(&messagesThread, NULL, (void *)&MULTIPLEXER RequestHandler, (void *)&mux)) == 0)
+    if((pthread_create(&messagesThread, NULL, handler, (void *)&mux)) == 0)
     {
         fprintf(stderr, "Request handler started\n");
     }

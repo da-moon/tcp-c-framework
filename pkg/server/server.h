@@ -4,7 +4,7 @@
     #include "../queue/queue.h"
     #include "../multiplexer/multiplexer.h"
 
-    void Run(int socketFd);
+    void Run(int socketFd,void *(*handler) (void *));
     void Bind(struct sockaddr_in *serverAddr, int socketFd, long port);
 
 #endif

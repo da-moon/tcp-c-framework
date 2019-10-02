@@ -1,5 +1,6 @@
 #include  "../../pkg/shared/consts.h"
 #include  "../../pkg/server/server.h"
+#include  "../../pkg/handler/handler.h"
 #include  "../../pkg/queue/queue.h"
 
 int main(int argc, char *argv[])
@@ -23,7 +24,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    SERVER Run(socketFd);
-
+    SERVER Run(socketFd,(void *)&HANDLER RequestHandler);
     close(socketFd);
 }
