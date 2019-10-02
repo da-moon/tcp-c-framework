@@ -21,19 +21,15 @@
         HANDLER Connection *conn;
         pthread_mutex_t *clientListMutex;
         QUEUE Queue *Queue;
+        // clientSocketFd is used to have a local copy of
+        // the socket per connection
+        // using the value in conn causes the server to shit the bed
+        // and behave erraticaly
         int clientSocketFd;
-
     } Multiplexer;
 
-    // Simple struct to hold the Multiplexer and the new client's socket fd.
-    // Used only in the client handler thread.
-    typedef struct {
-        Multiplexer *data;
-    } Payload;
-    void *Multiplex(void *data);
     void Disconnect(Multiplexer *data, int clientSocketFd);
+    void *Multiplex(void *data);
     void *ClientHandler(void *chv);
     void *RequestHandler(void *data);
-    // void *FileHandler(void *data);
-    // char *trimmsg(char *str);
 #endif

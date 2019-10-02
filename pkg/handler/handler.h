@@ -1,6 +1,5 @@
 #ifndef HANDLER
 #define HANDLER
-    // #include "../multiplexer/multiplexer.h"
     #include "../shared/consts.h"
     #include "../shared/utils.h"
     typedef struct {
@@ -8,6 +7,5 @@
         int clientSockets[CONSTS MAX_BUFFER];
         int numClients;
     } Connection;
-
     void ProtocolHandler(char* name,Connection *mux,char* msg);
 #endif
