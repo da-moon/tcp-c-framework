@@ -30,14 +30,8 @@ MULTIPLEXER void *Multiplex(void *data)
                 FD_SET(clientSocketFd, &(mux->readFds));
                 mux->clientSocketFd = clientSocketFd;
 
-                //Spawn new thread to handle client's request
-                // Payload chv;
-                // Multiplexer chv;
-                // chv.data = mux;
-
                 pthread_t clientThread;
                 if((pthread_create(&clientThread, NULL, (void *)&ClientHandler, (void *)mux)) == 0)
-                // if((pthread_create(&clientThread, NULL, (void *)&ClientHandler, (void *)&chv)) == 0)
                 {
                     (mux->conn)->numClients++;
                     fprintf(stderr, "Client connection to server has been successfully multiplexed on socket: %d\n", clientSocketFd);
@@ -92,8 +86,6 @@ MULTIPLEXER void Disconnect(Multiplexer *data, int clientSocketFd)
 //ClientHandler - Listens for payloads from client to add to queue
 MULTIPLEXER void *ClientHandler(void *chv)
 {
-    // Payload *vars = (Payload *)chv;
-    // Multiplexer *data = (Multiplexer *)vars->data;
     Multiplexer *data = (Multiplexer *)chv;
 
     QUEUE Queue *q = data->Queue;

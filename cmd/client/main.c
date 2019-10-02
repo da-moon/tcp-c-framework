@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Couldn't create socket\n");
         exit(1);
     }
-    // setupAndConnect(&serverAddr, host, socketFd, port);
+    setupAndConnect(&serverAddr, host, socketFd, port);
     setNonBlock(socketFd);
     setNonBlock(0);
 
@@ -61,7 +61,8 @@ void Loop(char *name, int socketFd)
 {
     fd_set clientFds;
     char payloadMessage[CONSTS MAX_BUFFER];
-    char payloadBuffer[CONSTS MAX_BUFFER], msgBuffer[CONSTS MAX_BUFFER];
+    char payloadBuffer[CONSTS MAX_BUFFER];
+    char msgBuffer[CONSTS MAX_BUFFER];
 
     while(1)
     {

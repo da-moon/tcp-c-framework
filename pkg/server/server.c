@@ -6,7 +6,6 @@
 MULTIPLEXER Multiplexer mux;
 int num_handlers = 0 ;
 
-// HANDLER []Handler handlers;
 //Spawns the new client handler thread and message consumer thread
 SERVER void Run(int socketFd,void *(*handler) (void *))
 {
