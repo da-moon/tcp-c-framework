@@ -90,16 +90,73 @@ MULTIPLEXER void *ClientHandler(void *chv)
 
     QUEUE Queue *q = data->Queue;
     int clientSocketFd = data->clientSocketFd;
+    char buffer[CONSTS MAX_BUFFER];
 
-    char msgBuffer[CONSTS MAX_BUFFER];
+    // char tmp;
+    // int n ;
+    // int buflen;
+    // do
+    // {
+    //     n = read(clientSocketFd, &tmp, 1);
+    //     if (n < 0) perror("ERROR reading from socket");
+
+    //     if (tmp != '\x2'){
+    //         continue;
+    //     }
+
+    //     buflen = 0;
+
+    //     do
+    //     {
+    //         n = read(clientSocketFd, &tmp, 1);
+    //         if (n < 0) {
+    //             perror("ERROR reading from socket");
+    //         }
+    //         if (tmp == '\x4')
+    //             break;
+
+    //         buffer[buflen] = tmp;
+    //         ++buflen;
+    //     }
+    //     while (1);
+    //     buffer[buflen-1] = '\0';
+    //     if(strcmp(buffer, "/exit\n") == 0)
+    //     {
+    //         fprintf(stderr, "Client on socket %d has disconnected.\n", clientSocketFd);
+    //         Disconnect(data, clientSocketFd);
+    //         return NULL;
+    //     }
+    //     else
+    //     {
+    //         //Wait for Queue to not be full before pushing message
+    //         while(q->full)
+    //         {
+    //             pthread_cond_wait(q->notFull, q->mutex);
+    //         }
+
+    //         //Obtain lock, push payload to Queue, unlock, set condition variable
+    //         pthread_mutex_lock(q->mutex);
+                // if (strlen(buffer) !=0){
+
+    //         fprintf(stderr, "Pushing payload to Queue: %s\n", buffer);
+    //         QUEUE Push(q, buffer);
+            // }
+
+    //         pthread_mutex_unlock(q->mutex);
+    //         pthread_cond_signal(q->notEmpty);
+    //     }
+    //     break;
+    // }
+    // while (1);
+
     while(1)
     {
-        int numBytesRead = read(clientSocketFd, msgBuffer, CONSTS MAX_BUFFER - 1);
-        msgBuffer[numBytesRead] = '\0';
+        int numBytesRead = read(clientSocketFd, buffer, CONSTS MAX_BUFFER - 1);
+        buffer[numBytesRead] = '\0';
 
         // If the client sent /exit\n,
         // remove them from the client list and close their socket
-        if(strcmp(msgBuffer, "/exit\n") == 0)
+        if(strcmp(buffer, "/exit\n") == 0)
         {
             fprintf(stderr, "Client on socket %d has disconnected.\n", clientSocketFd);
             Disconnect(data, clientSocketFd);
@@ -115,8 +172,10 @@ MULTIPLEXER void *ClientHandler(void *chv)
 
             //Obtain lock, push payload to Queue, unlock, set condition variable
             pthread_mutex_lock(q->mutex);
-            fprintf(stderr, "Pushing payload to Queue: %s\n", msgBuffer);
-            QUEUE Push(q, msgBuffer);
+            if (strlen(buffer) !=0){
+                fprintf(stderr, "Pushing payload to Queue: %s\n", buffer);
+                QUEUE Push(q, buffer);
+            }
             pthread_mutex_unlock(q->mutex);
             pthread_cond_signal(q->notEmpty);
         }

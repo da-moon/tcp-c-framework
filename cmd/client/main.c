@@ -12,7 +12,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include  "../../pkg/shared/consts.h"
-
+// https://stackoverflow.com/questions/19127398/socket-programming-read-is-reading-all-of-my-writes
 void Loop(char *name, int socketFd);
 void buildMessage(char *result, char *name, char *msg);
 void setupAndConnect(struct sockaddr_in *serverAddr, struct hostent *host, int socketFd, long port);
@@ -93,11 +93,20 @@ void Loop(char *name, int socketFd)
                         else
                         {
                             char payloadMessage[CONSTS MAX_BUFFER];
+                            int n;
                             buildMessage(payloadMessage, name, payloadBuffer);
-                            if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
-                            {
-                                perror("write failed: ");
-                            }
+                            char delim = '\x2';
+                            n = write(socketFd, &delim, 1);
+                            if (n < 0) perror("ERROR writing to socket");
+                            n = write(socketFd, payloadMessage, sizeof(payloadMessage));
+                            if (n < 0) perror("ERROR writing to socket");
+                            delim = '\x4';
+                            n = write(socketFd, &delim, 1);
+                            if (n < 0) perror("ERROR writing to socket");
+                            // if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
+                            // {
+                            //     perror("write failed: ");
+                            // }
                             memset(&payloadBuffer, 0, sizeof(payloadBuffer));
                         }
                     }

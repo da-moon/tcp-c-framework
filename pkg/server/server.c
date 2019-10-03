@@ -1,5 +1,6 @@
 #include "server.h"
 #include "../multiplexer/multiplexer.h"
+//
 // mux needs to be global considering that it needs to exist during the whole
 // lifecycle of the program .
 // as new client join, their information would get added to mux

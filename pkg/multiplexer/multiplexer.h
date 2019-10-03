@@ -1,6 +1,7 @@
 #ifndef MULTIPLEXER
 #define MULTIPLEXER
     #include "../shared/consts.h"
+    #include "../shared/utils.h"
     #include "../queue/queue.h"
     #include "../handler/handler.h"
 
