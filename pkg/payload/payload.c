@@ -1,11 +1,12 @@
 #include "payload.h"
-PAYLOAD int Payload(char *result,char* protocol,char* data){
-
-    return  0;
-}
-PAYLOAD int ExtractProtocol(char *result,char* data){
-    return  0;
-}
-PAYLOAD int ExtractData(char *result,char* data){
-    return  0;
+Payload* NewPayload(char* msg){
+    Payload *p = (Payload *)malloc(sizeof(Payload));
+    if(p == NULL)
+    {
+        perror("Couldn't allocate anymore memory!");
+        exit(EXIT_FAILURE);
+    }
+    memset(p->data, 0, CONSTS MAX_BUFFER);
+    strcpy(p->data, msg);
+    return p;
 }

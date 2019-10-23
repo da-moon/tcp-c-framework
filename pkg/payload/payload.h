@@ -1,13 +1,13 @@
 #ifndef PAYLOAD
 #define PAYLOAD
-#include <stddef.h>
-#include "../shared/consts.h"
-#include <stdio.h>
-// For string helper methods
-#include <string.h>
-
-int Payload(char *result,char* protocol,char* data);
-int ExtractProtocol(char *result,char* data);
-int ExtractData(char *result,char* data);
-int ExtractLength(int *result,char* data);
+    #include <stddef.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    // For string helper methods
+    #include <string.h>
+    #include "../shared/consts.h"
+   typedef struct {
+        char *data[CONSTS MAX_BUFFER];
+    } Payload;
+    Payload* NewPayload(char* msg);
 #endif

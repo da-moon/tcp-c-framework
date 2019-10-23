@@ -95,19 +95,21 @@ void Loop(char *name, int socketFd)
                             char payloadMessage[CONSTS MAX_BUFFER];
                             int n;
                             buildMessage(payloadMessage, name, payloadBuffer);
-                            char delim = '\x2';
-                            n = write(socketFd, &delim, 1);
-                            if (n < 0) perror("ERROR writing to socket");
-                            n = write(socketFd, payloadMessage, sizeof(payloadMessage));
-                            if (n < 0) perror("ERROR writing to socket");
-                            delim = '\x4';
-                            n = write(socketFd, &delim, 1);
-                            if (n < 0) perror("ERROR writing to socket");
-                            // if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
-                            // {
-                            //     perror("write failed: ");
-                            // }
+                            if(write(socketFd, payloadMessage, MAX_BUFFER - 1) == -1) perror("write failed: ");
                             memset(&payloadBuffer, 0, sizeof(payloadBuffer));
+                            // char delim = '\x2';
+                            // n = write(socketFd, &delim, 1);
+                            // if (n < 0) perror("ERROR writing to socket");
+                            // n = write(socketFd, payloadMessage, sizeof(payloadMessage));
+                            // if (n < 0) perror("ERROR writing to socket");
+                            // delim = '\x4';
+                            // n = write(socketFd, &delim, 1);
+                            // if (n < 0) perror("ERROR writing to socket");
+                            // // if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
+                            // // {
+                            // //     perror("write failed: ");
+                            // // }
+                            // memset(&payloadBuffer, 0, sizeof(payloadBuffer));
                         }
                     }
                 }
@@ -120,8 +122,8 @@ void Loop(char *name, int socketFd)
 void buildMessage(char *result, char *name, char *msg)
 {
     memset(result, 0, CONSTS MAX_BUFFER);
-    // strcpy(result, name);
-    // strcat(result, ": ");
+    strcpy(result, name);
+    strcat(result, ": ");
     strcat(result, msg);
 }
 

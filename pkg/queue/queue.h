@@ -1,13 +1,15 @@
 #ifndef QUEUE
 #define QUEUE
     #include <pthread.h>
-    #include "../shared/consts.h"
+    #include <stdio.h>
     #include <stdlib.h>
+    #include "../shared/consts.h"
+    #include "../payload/payload.h"
     // Queue - Queue implementation using a char array.
     typedef struct {
-        char *buffer[CONSTS MAX_BUFFER];
-        int head, tail;
-        int full, empty;
+        // char *buffer[CONSTS MAX_BUFFER];
+        Payload *buffer[CONSTS MAX_BUFFER];
+        int head, tail,full, empty;
         // mutex is used for functions to lock on before modifying
         // the array and condition variables for when it's not empty or full.
         pthread_mutex_t *mutex;
@@ -15,7 +17,7 @@
     } Queue;
 
     // Prototype decl
-    Queue* New(void);
+    Queue* NewQueue(void);
     void Destroy(Queue *q);
     void Push(Queue *q, char* msg);
     char* Pop(Queue *q);

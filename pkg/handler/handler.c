@@ -2,7 +2,7 @@
 
 
 HANDLER void ProtocolHandler(char* name,Connection *conn,char* msg){
-    fprintf(stderr, "PROTOCOL: [%s]\n", name);
+    fprintf(stderr, "PROTOCOL: [%s] \n" ,name);
         for(int i = 0; i < conn->numClients; i++)
         {
             int socket = conn->clientSockets[i];

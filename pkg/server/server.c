@@ -13,7 +13,7 @@ SERVER void Run(int socketFd,void *(*handler) (void *))
     mux.conn = malloc(sizeof *mux.conn);
     mux.conn->numClients=0;
     mux.conn->socketFd=socketFd;
-    mux.Queue = QUEUE  New();
+    mux.Queue = QUEUE  NewQueue();
     mux.clientListMutex = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(mux.clientListMutex, NULL);
 

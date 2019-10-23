@@ -1,8 +1,7 @@
 #include "queue.h"
-#include <stdio.h>
 
-// New - Initializes a new Queue
-QUEUE Queue* New(void)
+// NewQueue - Initializes a new Queue
+QUEUE Queue* NewQueue(void)
 {
     Queue *q = (Queue *)malloc(sizeof(Queue));
     if(q == NULL)
@@ -54,7 +53,8 @@ QUEUE void Destroy(Queue *q)
 //Push to end of Queue
 QUEUE void Push(Queue *q, char* msg)
 {
-    q->buffer[q->tail] = msg;
+
+    q->buffer[q->tail] =  PAYLOAD NewPayload(msg);
     q->tail++;
     if(q->tail == CONSTS MAX_BUFFER)
         q->tail = 0;
@@ -66,7 +66,7 @@ QUEUE void Push(Queue *q, char* msg)
 //Pop front of Queue
 QUEUE char* Pop(Queue *q)
 {
-    char* msg = q->buffer[q->head];
+    char* msg = q->buffer[q->head]->data;
     q->head++;
     if(q->head == CONSTS MAX_BUFFER)
         q->head = 0;
