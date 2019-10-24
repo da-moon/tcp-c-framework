@@ -1,6 +1,7 @@
 #ifndef MESSAGE
 #define MESSAGE
 #include "../shared/consts.h"
+#include <stdio.h>
 
 // for uint type
 #include <stdint.h>
@@ -8,21 +9,21 @@
 #include <arpa/inet.h>
 // For string helper methods
 #include "../message/message.h"
+#include "wire.h"
 #include <stdint.h>
 
 typedef enum {
   // 'A' in hex
-  REQ_SEND_MSG = 0x0041,
+  BROADCAST_REQUEST = 0x0041,
   //   'a' in hex
-  RPL_SEND_MSG = 0x0061,
+  BROADCAST_REPLY = 0x0061,
   RPL_SEND_SENDER = 0x0200,
   UNKNOWN_TYPE = 0xFFFF
 } MessageType;
-// checks to see if the message is based on a valid protocol
-// in which we have defined handlers
-int IsValidProtocol(const unsigned char *buf);
-// Encode
-// SendMessageOverTheWire - sends the message to a target after marshalling
-int SendMessageOverTheWire(int target_socket, const uint16_t protocol,
-                           const char *src);
+
+// reads server reply and multiplexes it to an action to be taken
+// based on the reply
+void BroadcastProtocolHandleServerReply(int socket);
+// reads from stdin and sends a message to server
+void BroadcastProtocolSendRequestToServer(int socket);
 #endif

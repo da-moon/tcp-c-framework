@@ -16,32 +16,16 @@ void Loop(int socket) {
         if (FD_ISSET(connection_file_descriptor_socket, &clientFds)) {
           // receive data from server
           if (connection_file_descriptor_socket == socket) {
-            handle_reply(socket);
+            BroadcastProtocolHandleServerReply(socket);
           }
           // read from keyboard (stdin) and send to server
           else if (connection_file_descriptor_socket == 0) {
-            read_stdin_and_send(socket);
+            BroadcastProtocolSendRequestToServer(socket);
           }
         }
       }
     }
   }
-}
-void handle_reply(int socket) {
-  char msgBuffer[CONSTS MAX_BUFFER];
-  int numBytesRead = read(socket, msgBuffer, CONSTS MAX_BUFFER - 1);
-  if (numBytesRead > 1) {
-    msgBuffer[numBytesRead] = '\0';
-    fprintf(stderr, "[DEBUG] reading server reply on socket [%d] \n", socket);
-    fprintf(stderr, "[DEBUG] receive data from server - %s\n", msgBuffer);
-  }
-  memset(&msgBuffer, 0, sizeof(msgBuffer));
-}
-void read_stdin_and_send(int socket) {
-  char payloadBuffer[CONSTS MAX_BUFFER];
-  fgets(payloadBuffer, CONSTS MAX_BUFFER - 1, stdin);
-  if (SendMessageOverTheWire(socket, REQ_SEND_MSG, payloadBuffer) == -1)
-    perror("write failed: ");
 }
 
 void establish_connection_with_server(struct sockaddr_in *serverAddr,

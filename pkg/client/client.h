@@ -26,9 +26,5 @@ void set_non_blocking(int file_descriptor);
 
 // Notify the server when the client exits by sending "/exit"
 void leave_request(int socket);
-// reads server reply and multiplexes it to an action to be taken
-// based on the reply
-void handle_reply(int socket);
-// reads from stdin and sends a message to server
-void read_stdin_and_send(int socket);
+
 #endif

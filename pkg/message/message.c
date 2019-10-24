@@ -34,18 +34,12 @@ int MarshallMessage(unsigned char *dest, const uint16_t magic,
   int payload_length = sizeof(content);
   // Write magic short 2 bytes
   *(uint16_t *)(dest) = htons(magic);
-  fprintf(stderr, "[DEBUG] sizeof magic [%lu]\n", sizeof(htons(0xC0DE)));
   // Write protocol - short 2 bytes
   *(uint16_t *)(dest + 2) = htons(protocol);
-  fprintf(stderr, "[DEBUG] sizeof protocol [%lu]\n", sizeof(htons(protocol)));
 
   // Write body length - long 4 bytes
   *(uint32_t *)(dest + 4) = htonl(payload_length);
-  fprintf(stderr, "[DEBUG] sizeof body length [%lu]\n",
-          sizeof(htonl(payload_length)));
-
   // Write message
-
   strncpy((char *)(dest + PROTOCOL_HEADER_LEN), content, payload_length);
   //   return PROTOCOL_HEADER_LEN + payload_length;
   return PROTOCOL_HEADER_LEN + payload_length;
