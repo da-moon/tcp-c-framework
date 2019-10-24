@@ -12,9 +12,12 @@
 #include <fcntl.h>
 #include <signal.h>
 #include  "../../pkg/shared/consts.h"
+#include  "../../pkg/payload/payload.h"
+#include  "../../pkg/protocol/protocol.h"
+
 // https://stackoverflow.com/questions/19127398/socket-programming-read-is-reading-all-of-my-writes
-void Loop(char *name, int socketFd);
-void buildMessage(char *result, char *name, char *msg);
+void Loop(int socketFd);
+int send_payload(int socket_desc, const char *src);
 void setupAndConnect(struct sockaddr_in *serverAddr, struct hostent *host, int socketFd, long port);
 void setNonBlock(int fd);
 void interruptHandler(int sig);
@@ -23,24 +26,22 @@ static int socketFd;
 
 int main(int argc, char *argv[])
 {
-    char *name;
     char *filename;
     struct sockaddr_in serverAddr;
     struct hostent *host;
     long port;
 
-    if(argc != 4)
+    if(argc != 3)
     {
-        fprintf(stderr, "./client [username] [host] [port] \n");
+        fprintf(stderr, "./client [host] [port] \n");
         exit(1);
     }
-    name = argv[1];
-    if((host = gethostbyname(argv[2])) == NULL)
+    if((host = gethostbyname(argv[1])) == NULL)
     {
         fprintf(stderr, "Couldn't get host name\n");
         exit(1);
     }
-    port = strtol(argv[3], NULL, 0);
+    port = strtol(argv[2], NULL, 0);
     if((socketFd = socket(AF_INET, SOCK_STREAM, 0))== -1)
     {
         fprintf(stderr, "Couldn't create socket\n");
@@ -52,22 +53,21 @@ int main(int argc, char *argv[])
 
     //Set a handler for the interrupt signal
     signal(SIGINT, interruptHandler);
-
-    Loop(name, socketFd);
+    Loop(socketFd);
 }
 
 //Main loop to take in input and display output result from server
-void Loop(char *name, int socketFd)
+void Loop(int socketFd)
 {
     fd_set clientFds;
-
     while(1)
     {
         //Reset the fd set each time since select() modifies it
         FD_ZERO(&clientFds);
         FD_SET(socketFd, &clientFds);
         FD_SET(0, &clientFds);
-        if(select(FD_SETSIZE, &clientFds, NULL, NULL, NULL) != -1) //wait for an available fd
+        //wait for an available fd
+        if(select(FD_SETSIZE, &clientFds, NULL, NULL, NULL) != -1)
         {
             for(int fd = 0; fd < FD_SETSIZE; fd++)
             {
@@ -79,7 +79,9 @@ void Loop(char *name, int socketFd)
                         char msgBuffer[CONSTS MAX_BUFFER];
                         int numBytesRead = read(socketFd, msgBuffer, CONSTS MAX_BUFFER - 1);
                         msgBuffer[numBytesRead] = '\0';
-                        printf("%s", msgBuffer);
+                        if (numBytesRead>1){
+                            printf("[receive data from server] %s\n", msgBuffer);
+                        }
                         memset(&msgBuffer, 0, sizeof(msgBuffer));
                     }
                     //read from keyboard (stdin) and send to server
@@ -92,24 +94,7 @@ void Loop(char *name, int socketFd)
                             interruptHandler(-1);
                         else
                         {
-                            char payloadMessage[CONSTS MAX_BUFFER];
-                            int n;
-                            buildMessage(payloadMessage, name, payloadBuffer);
-                            if(write(socketFd, payloadMessage, MAX_BUFFER - 1) == -1) perror("write failed: ");
-                            memset(&payloadBuffer, 0, sizeof(payloadBuffer));
-                            // char delim = '\x2';
-                            // n = write(socketFd, &delim, 1);
-                            // if (n < 0) perror("ERROR writing to socket");
-                            // n = write(socketFd, payloadMessage, sizeof(payloadMessage));
-                            // if (n < 0) perror("ERROR writing to socket");
-                            // delim = '\x4';
-                            // n = write(socketFd, &delim, 1);
-                            // if (n < 0) perror("ERROR writing to socket");
-                            // // if(write(socketFd, payloadMessage, CONSTS MAX_BUFFER - 1) == -1)
-                            // // {
-                            // //     perror("write failed: ");
-                            // // }
-                            // memset(&payloadBuffer, 0, sizeof(payloadBuffer));
+                            if(send_payload(socketFd, payloadBuffer) == -1) perror("write failed: ");
                         }
                     }
                 }
@@ -118,13 +103,12 @@ void Loop(char *name, int socketFd)
     }
 }
 
-//Concatenates the name with the message and puts it into result
-void buildMessage(char *result, char *name, char *msg)
+
+int send_payload(int socket_desc, const char *src)
 {
-    memset(result, 0, CONSTS MAX_BUFFER);
-    strcpy(result, name);
-    strcat(result, ": ");
-    strcat(result, msg);
+    unsigned char buffer[MAX_BUFFER];
+    int mesg_length = request_comm_msg(buffer,socket_desc, src);
+    return send(socket_desc, buffer, mesg_length, 0);
 }
 
 //Sets up the socket and connects
@@ -148,7 +132,6 @@ void setNonBlock(int fd)
     if(flags < 0)
         perror("fcntl failed");
 
-    flags |= O_NONBLOCK;
     fcntl(fd, F_SETFL, flags);
 }
 

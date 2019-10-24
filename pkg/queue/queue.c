@@ -51,10 +51,10 @@ QUEUE void Destroy(Queue *q)
 }
 
 //Push to end of Queue
-QUEUE void Push(Queue *q, char* msg)
+QUEUE void Push(Queue *q, int origin,char* msg)
 {
 
-    q->buffer[q->tail] =  PAYLOAD NewPayload(msg);
+    q->entities[q->tail] =  PAYLOAD NewPayload(msg,origin);
     q->tail++;
     if(q->tail == CONSTS MAX_BUFFER)
         q->tail = 0;
@@ -64,9 +64,9 @@ QUEUE void Push(Queue *q, char* msg)
 }
 
 //Pop front of Queue
-QUEUE char* Pop(Queue *q)
+QUEUE Payload* Pop(Queue *q)
 {
-    char* msg = q->buffer[q->head]->data;
+    Payload* entity = q->entities[q->head];
     q->head++;
     if(q->head == CONSTS MAX_BUFFER)
         q->head = 0;
@@ -74,5 +74,5 @@ QUEUE char* Pop(Queue *q)
         q->empty = 1;
     q->full = 0;
 
-    return msg;
+    return entity;
 }

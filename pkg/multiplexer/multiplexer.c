@@ -1,7 +1,5 @@
 #include "multiplexer.h"
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include "../protocol/protocol.h"
 
 //Thread to handle new connections. Adds client's fd to list of client fds and spawns a new ClientHandler thread for it
 MULTIPLEXER void *Multiplex(void *data)
@@ -52,69 +50,9 @@ MULTIPLEXER void *ClientHandler(void *chv)
     QUEUE Queue *q = data->Queue;
     int clientSocketFd = data->clientSocketFd;
     char buffer[CONSTS MAX_BUFFER];
-
-    // char tmp;
-    // int n ;
-    // int buflen;
-    // do
-    // {
-    //     n = read(clientSocketFd, &tmp, 1);
-    //     if (n < 0) perror("ERROR reading from socket");
-
-    //     if (tmp != '\x2'){
-    //         continue;
-    //     }
-
-    //     buflen = 0;
-
-    //     do
-    //     {
-    //         n = read(clientSocketFd, &tmp, 1);
-    //         if (n < 0) {
-    //             perror("ERROR reading from socket");
-    //         }
-    //         if (tmp == '\x4')
-    //             break;
-
-    //         buffer[buflen] = tmp;
-    //         ++buflen;
-    //     }
-    //     while (1);
-    //     buffer[buflen-1] = '\0';
-    //     if(strcmp(buffer, "/exit\n") == 0)
-    //     {
-    //         fprintf(stderr, "Client on socket %d has disconnected.\n", clientSocketFd);
-    //         Disconnect(data, clientSocketFd);
-    //         return NULL;
-    //     }
-    //     else
-    //     {
-    //         //Wait for Queue to not be full before pushing message
-    //         while(q->full)
-    //         {
-    //             pthread_cond_wait(q->notFull, q->mutex);
-    //         }
-
-    //         //Obtain lock, push payload to Queue, unlock, set condition variable
-    //         pthread_mutex_lock(q->mutex);
-                // if (strlen(buffer) !=0){
-
-    //         fprintf(stderr, "Pushing payload to Queue: %s\n", buffer);
-    //         QUEUE Push(q, buffer);
-            // }
-
-    //         pthread_mutex_unlock(q->mutex);
-    //         pthread_cond_signal(q->notEmpty);
-    //     }
-    //     break;
-    // }
-    // while (1);
-
-    while(1)
+    int read_size;
+    while((read_size = recv(clientSocketFd, buffer, MAX_BUFFER, 0)) > 0)
     {
-
-        int numBytesRead = read(clientSocketFd, buffer, CONSTS MAX_BUFFER - 1);
-        buffer[numBytesRead] = '\0';
 
         // If the client sent /exit\n,
         // remove them from the client list and close their socket
@@ -131,12 +69,15 @@ MULTIPLEXER void *ClientHandler(void *chv)
             {
                 pthread_cond_wait(q->notFull, q->mutex);
             }
-
+            // extracting message length
+            unsigned char data[ExtractMessageLength(buffer)];
+            // extracting data
+            ExtractMessageData(data,buffer);
             //Obtain lock, push payload to Queue, unlock, set condition variable
             pthread_mutex_lock(q->mutex);
-            if (strlen(buffer) !=0){
-                fprintf(stderr, "Pushing payload to Queue: %s\n", buffer);
-                QUEUE Push(q, buffer);
+            if (strlen(data) !=0){
+                fprintf(stderr, "Pushing payload to Queue: %s\n", data);
+                QUEUE Push(q,clientSocketFd, data);
             }
             pthread_mutex_unlock(q->mutex);
             pthread_cond_signal(q->notEmpty);
@@ -156,14 +97,12 @@ MULTIPLEXER void *RequestHandler(void *data)
         {
             pthread_cond_wait((mux->Queue)->notEmpty, (mux->Queue)->mutex);
         }
-        char* msg = QUEUE Pop(mux->Queue);
+        PAYLOAD Payload *message = QUEUE Pop(mux->Queue);
         pthread_mutex_unlock((mux->Queue)->mutex);
         pthread_cond_signal((mux->Queue)->notFull);
-        fprintf(stderr, "recieved message : %s\n" ,msg);
-
+        fprintf(stderr, "recieved message data: %s\n" ,message->data);
         fprintf(stderr, "Broadcasting .... \n");
-
-        HANDLER ProtocolHandler("Chat-v1",mux->conn,msg);
+        HANDLER ProtocolHandler("Chat-v1",mux->conn,message);
     }
 }
 

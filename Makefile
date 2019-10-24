@@ -31,18 +31,17 @@ nullstring :=
 space := $(nullstring)
 TARGET := $(DIRS)
 SERVER_IP = 127.0.0.1
-SERVER_PORT = 8081
-PKG_C_FILES = ./pkg/payload/payload.c  ./pkg/base58/base58.c ./pkg/queue/queue.c ./pkg/server/server.c ./pkg/multiplexer/multiplexer.c ./pkg/handler/handler.c ./pkg/shared/utils.c
+SERVER_PORT = 8084
+PKG_C_FILES = ./pkg/protocol/protocol.c  ./pkg/payload/payload.c  ./pkg/base58/base58.c ./pkg/queue/queue.c ./pkg/server/server.c ./pkg/multiplexer/multiplexer.c ./pkg/handler/handler.c ./pkg/shared/utils.c
 
 .PHONY:  client run-client server run-server clean dep print
 client:
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/client
 	- gcc -o ./bin/client ${PKG_C_FILES} ./cmd/client/main.c -std=c99 -lpthread -Wall  -lnsl
-	- $(CLEAR)
 run-client: client
 	- $(CLEAR)
-	- ./bin/client damoon ${SERVER_IP} ${SERVER_PORT}
+	- ./bin/client ${SERVER_IP} ${SERVER_PORT}
 server:
 	- $(CLEAR)
 	- $(MKDIR) ./bin

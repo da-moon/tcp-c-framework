@@ -4,7 +4,9 @@
     #include "../shared/utils.h"
     #include "../queue/queue.h"
     #include "../handler/handler.h"
-
+    #include "../payload/payload.h"
+    #include "../protocol/protocol.h"
+    #include <ctype.h>
     #include <stdio.h>
     // accept
     #include <netdb.h>
