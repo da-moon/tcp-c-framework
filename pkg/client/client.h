@@ -1,6 +1,6 @@
 #ifndef CLIENT
 #define CLIENT
-#include "../message/message.h"
+#include "../handlers/handlers.h"
 #include "../shared/consts.h"
 #include <arpa/inet.h>
 #include <errno.h>
