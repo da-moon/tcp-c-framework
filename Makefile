@@ -25,28 +25,28 @@ else
     ERRIGNORE = 2>/dev/null
     SEP=/
 endif
-DIRS = $(notdir $(patsubst %/,%,$(dir $(wildcard ./cmd/*/.))))
+# recursive wildcard
+rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 PSEP = $(strip $(SEP))
 nullstring :=
 space := $(nullstring)
-TARGET := $(DIRS)
 SERVER_IP = 127.0.0.1
 SERVER_PORT = 8084
-PKG_C_FILES = ./pkg/protocol/protocol.c  ./pkg/payload/payload.c  ./pkg/base58/base58.c ./pkg/queue/queue.c ./pkg/server/server.c ./pkg/multiplexer/multiplexer.c ./pkg/handler/handler.c ./pkg/shared/utils.c
+LIBRARIES = $(filter-out $(wildcard ./cmd/*/*.c), $(call rwildcard,./,*.c))
 
-.PHONY:  client run-client server run-server clean dep print
-client:
+.PHONY:  dep client run-client server run-server clean
+client: clean
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/client
-	- gcc -o ./bin/client ${PKG_C_FILES} ./cmd/client/main.c -std=c99 -lpthread -Wall  -lnsl
+	- gcc -o ./bin/client ${LIBRARIES} ./cmd/client/main.c -std=c99 -lpthread -Wall  -lnsl
 run-client: client
 	- $(CLEAR)
 	- ./bin/client ${SERVER_IP} ${SERVER_PORT}
-server:
+server: clean
 	- $(CLEAR)
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/server
-	- gcc -o ./bin/server ${PKG_C_FILES} ./cmd/server/main.c -std=c99 -lpthread -Wall -lnsl
+	- gcc -o ./bin/server ${LIBRARIES} ./cmd/server/main.c -std=c99 -lpthread -Wall -lnsl
 run-server: server
 	- $(CLEAR)
 	- ./bin/server ${SERVER_PORT}
@@ -54,13 +54,16 @@ run-server: server
 build: clean
 	- $(MKDIR) ./bin
 	for target in $(TARGET); do \
-		gcc -o .$(PSEP)bin$(PSEP)$$target ${PKG_C_FILES} .$(PSEP)cmd$(PSEP)$$target$(PSEP)main.c -std=c99 -lpthread -Wall  -lnsl; \
+		gcc -o .$(PSEP)bin$(PSEP)$$target ${LIBRARIES} .$(PSEP)cmd$(PSEP)$$target$(PSEP)main.c -std=c99 -lpthread -Wall  -lnsl; \
 	done
 clean:
 	- $(RM) ./bin
 	- $(RM) ./core.*
 dep:
+	- $(info Installing clang-format from npm)
+	- npm install -g clang-format
 
 print:
 	- $(CLEAR)
-	- @echo $(space) ${PWD}
+	- @echo $(space) $(LIBRARIES)
+
