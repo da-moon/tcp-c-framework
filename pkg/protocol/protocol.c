@@ -1,12 +1,11 @@
 #include "protocol.h"
 
 // Protocol format
-// HEX  || BE EF |             |       |
-// byte || -- -- | -- -- -- -- | -- -- | --...
+// HEX  || BA AD |             |       |
 // desc || Magic | Body Length | Type  | Body
-
 // Magic number of the protocol
 const uint16_t MAGIC = 0xBADD;
+
 // Message to real content
 // The return value is the from/to descriptor
 int ExtractMessageData(unsigned char *dest, const unsigned char *src)
