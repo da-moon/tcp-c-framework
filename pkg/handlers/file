@@ -54,7 +54,7 @@
 //         {
 //             int socket = clientSockets[i];
 //             // int socket = socketFd;
-//             if(socket != 0 && write(socket, msg, CONSTS MAX_BUFFER - 1) ==
+//             if(socket != 0 && write(socket, msg,  MAX_BUFFER - 1) ==
 //             -1)
 //                 perror("Socket write failed: ");
 //         }

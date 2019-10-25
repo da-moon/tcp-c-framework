@@ -18,7 +18,7 @@
 // connection  struct
 typedef struct {
   int socketFd;
-  int clientSockets[CONSTS MAX_BUFFER];
+  int clientSockets[MAX_BUFFER];
   int numClients;
 } Connection;
 // Struct containing important data for the server to work.
@@ -28,6 +28,7 @@ typedef struct {
   fd_set readFds;
   Connection *conn;
   pthread_mutex_t *clientListMutex;
+
   QUEUE Queue *Queue;
   // clientSocketFd is used to have a local copy of
   // the socket per connection
@@ -39,5 +40,4 @@ typedef struct {
 void Disconnect(Multiplexer *data, int clientSocketFd);
 void *Multiplex(void *arg);
 void *ClientHandler(void *arg);
-void *RequestHandler(void *arg);
 #endif

@@ -12,6 +12,7 @@
 
 // For string helper methods
 #include "../shared/consts.h"
+
 typedef struct {
   // used to keep track of the socket that sent the message
   int message_sender;
@@ -24,7 +25,6 @@ typedef struct {
   //   message body
   char *body;
 } Message;
-// https://www.ibm.com/support/knowledgecenter/en/SSVSD8_8.4.1/com.ibm.websphere.dtx.dsgnstud.doc/references/r_design_studio_intro_Hex_Decimal_and_Symbol_Values.htm
 
 // UnmarshallMessage - returns a message struct based on a given
 // bytestream

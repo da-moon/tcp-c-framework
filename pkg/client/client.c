@@ -1,6 +1,6 @@
 #include "client.h"
 // Main loop to take in input and display output result from server
-void Loop(int socket) {
+void Loop(int socket, int argc, char *argv[]) {
   fd_set clientFds;
   while (1) {
     // Reset the connection_file_descriptor_socket set each time since select()
@@ -16,11 +16,18 @@ void Loop(int socket) {
         if (FD_ISSET(connection_file_descriptor_socket, &clientFds)) {
           // receive data from server
           if (connection_file_descriptor_socket == socket) {
-            BroadcastProtocolHandleServerReply(socket);
+            //   reacting to a broadcast protocol server reply
+            // BroadcastProtocolHandleServerReply(socket);
+            //   reacting to a echo protocol server reply
+
+            EchoProtocolHandleServerReply(socket);
           }
           // read from keyboard (stdin) and send to server
           else if (connection_file_descriptor_socket == 0) {
-            BroadcastProtocolSendRequestToServer(socket);
+            //   sending a broadcast protocol msg to server
+            // BroadcastProtocolSendRequestToServer(socket);
+            //   sending a echo protocol msg to server
+            EchoProtocolSendRequestToServer(socket);
           }
         }
       }
@@ -51,7 +58,7 @@ void set_non_blocking(int file_descriptor) {
 }
 
 void leave_request(int socket) {
-  if (write(socket, "/exit\n", CONSTS MAX_BUFFER - 1) == -1)
+  if (write(socket, "/exit\n", MAX_BUFFER - 1) == -1)
     perror("write failed: ");
 
   close(socket);

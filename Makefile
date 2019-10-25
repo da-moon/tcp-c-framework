@@ -34,14 +34,18 @@ SERVER_IP = 127.0.0.1
 SERVER_PORT = 8084
 LIBRARIES = $(filter-out $(wildcard ./cmd/*/*.c), $(call rwildcard,./,*.c))
 
-.PHONY:  dep client run-client server run-server clean
+.PHONY:  dep client server run-server clean
+.PHONY: run-echo-client run-broadcast-client
 client: clean
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/client
 	- gcc -o ./bin/client ${LIBRARIES} ./cmd/client/main.c -std=c99 -lpthread -Wall  -lnsl
-run-client: client
+run-echo-client: client
 	- $(CLEAR)
-	- ./bin/client ${SERVER_IP} ${SERVER_PORT}
+	- ./bin/client ${SERVER_IP} ${SERVER_PORT} echo
+run-broadcast-client: client
+	- $(CLEAR)
+	- ./bin/client ${SERVER_IP} ${SERVER_PORT} broadcast
 server: clean
 	- $(CLEAR)
 	- $(MKDIR) ./bin

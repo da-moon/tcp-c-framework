@@ -30,8 +30,10 @@ Message *UnmarshallMessage(int message_sender, const char *marshalled_message) {
 
 int MarshallMessage(unsigned char *dest, const uint16_t magic,
                     const uint16_t protocol, const char *content) {
+  //   int payload_length = sizeof(content);
+  int payload_length = MAX_BUFFER;
+  //   fprintf(stderr, "[DEBUG] size before enc %d\n", payload_length);
 
-  int payload_length = sizeof(content);
   // Write magic short 2 bytes
   *(uint16_t *)(dest) = htons(magic);
   // Write protocol - short 2 bytes
@@ -50,7 +52,6 @@ const char *ExtractMessageBody(const unsigned char *src) {
   // int ExtractMessageData(unsigned char *dest, const unsigned char *src) {
   char *dest;
   int decoded_body_length = ExtractMessageBodySize(src);
-  fprintf(stderr, "[DEBUG] server body size [%d] \n", decoded_body_length);
 
   dest = malloc(decoded_body_length + 1);
   strncpy((char *)dest, (char *)src + PROTOCOL_HEADER_LEN, decoded_body_length);

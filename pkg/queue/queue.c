@@ -34,7 +34,7 @@ Queue *NewQueue(void) {
   return q;
 }
 // QueueDestroy - destroys a queue
-void Destroy(Queue *q) {
+void DestroyQueue(Queue *q) {
   pthread_mutex_destroy(q->mutex);
   pthread_cond_destroy(q->notFull);
   pthread_cond_destroy(q->notEmpty);
@@ -49,7 +49,7 @@ void Push(Queue *q, int origin, const Message *msg) {
 
   q->messages[q->tail] = msg;
   q->tail++;
-  if (q->tail == CONSTS MAX_BUFFER)
+  if (q->tail == MAX_BUFFER)
     q->tail = 0;
   if (q->tail == q->head)
     q->full = 1;
@@ -60,7 +60,7 @@ void Push(Queue *q, int origin, const Message *msg) {
 Message *Pop(Queue *q) {
   Message *entity = q->messages[q->head];
   q->head++;
-  if (q->head == CONSTS MAX_BUFFER)
+  if (q->head == MAX_BUFFER)
     q->head = 0;
   if (q->head == q->tail)
     q->empty = 1;

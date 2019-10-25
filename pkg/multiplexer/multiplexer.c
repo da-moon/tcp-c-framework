@@ -1,4 +1,5 @@
 #include "multiplexer.h"
+#include "../message/message.h"
 
 // Thread to handle new connections. Adds client's fd to list of client fds and
 // spawns a new ClientHandler thread for it
@@ -10,12 +11,12 @@ void *Multiplex(void *arg) {
       fprintf(stderr, " accepted new client. Socket: %d\n", clientSocketFd);
       // Obtain lock on clients list and add new client in
       pthread_mutex_lock(mux->clientListMutex);
-      if ((mux->conn)->numClients < CONSTS MAX_BUFFER) {
+      if ((mux->conn)->numClients < MAX_BUFFER) {
         // Add new client to list
-        for (int i = 0; i < CONSTS MAX_BUFFER; i++) {
+        for (int i = 0; i < MAX_BUFFER; i++) {
           if (!FD_ISSET((mux->conn)->clientSockets[i], &(mux->readFds))) {
             (mux->conn)->clientSockets[i] = clientSocketFd;
-            i = CONSTS MAX_BUFFER;
+            i = MAX_BUFFER;
           }
         }
 
@@ -42,9 +43,9 @@ void *Multiplex(void *arg) {
 void *ClientHandler(void *arg) {
   Multiplexer *mux = (Multiplexer *)arg;
 
-  QUEUE Queue *q = mux->Queue;
+  Queue *q = mux->Queue;
   int clientSocketFd = mux->clientSocketFd;
-  unsigned char buffer[CONSTS MAX_BUFFER];
+  unsigned char buffer[MAX_BUFFER];
   int read_size;
   while ((read_size = recv(clientSocketFd, buffer, MAX_BUFFER, 0)) > 0) {
 
@@ -68,7 +69,7 @@ void *ClientHandler(void *arg) {
 
         const Message *message = UnmarshallMessage(clientSocketFd, buffer);
         if (message != NULL) {
-          QUEUE Push(q, clientSocketFd, message);
+          Push(q, clientSocketFd, message);
         }
       }
       pthread_mutex_unlock(q->mutex);
@@ -77,44 +78,15 @@ void *ClientHandler(void *arg) {
   }
 }
 
-// The "consumer" -- waits for the Queue to have messages then takes them out
-// and broadcasts to clients
-void *RequestHandler(void *arg) {
-  Multiplexer *mux = (Multiplexer *)arg;
-  while (1) {
-    // Obtain lock and pop message from Queue when not empty
-    pthread_mutex_lock((mux->Queue)->mutex);
-    while ((mux->Queue)->empty) {
-      pthread_cond_wait((mux->Queue)->notEmpty, (mux->Queue)->mutex);
-    }
-    const Message *message = QUEUE Pop(mux->Queue);
-    pthread_mutex_unlock((mux->Queue)->mutex);
-    pthread_cond_signal((mux->Queue)->notFull);
-#ifdef DEV_MODE
-    fprintf(stderr, "recieved message data: %s\n", message->body);
-    fprintf(stderr, "Broadcasting .... \n");
-#endif
-    for (int i = 0; i < mux->conn->numClients; i++) {
-      int socket = mux->conn->clientSockets[i];
-      if (socket != 0) {
-        int result = write(socket, message->body, MAX_BUFFER);
-        if (result == -1) {
-          perror("Socket write failed: ");
-        }
-      }
-    }
-  }
-}
-
 // Removes the socket from the list of active client sockets and closes it
 void Disconnect(Multiplexer *data, int clientSocketFd) {
   pthread_mutex_lock(data->clientListMutex);
-  for (int i = 0; i < CONSTS MAX_BUFFER; i++) {
+  for (int i = 0; i < MAX_BUFFER; i++) {
     if ((data->conn)->clientSockets[i] == clientSocketFd) {
       (data->conn)->clientSockets[i] = 0;
       close(clientSocketFd);
       (data->conn)->numClients--;
-      i = CONSTS MAX_BUFFER;
+      i = MAX_BUFFER;
     }
   }
   pthread_mutex_unlock(data->clientListMutex);

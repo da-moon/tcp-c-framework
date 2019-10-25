@@ -23,13 +23,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+// const uint16_t magic = 0xC0DE;
 
 // checks to see if the message is based on a valid protocol
 // in which we have defined handlers
 int IsValidProtocol(const unsigned char *buf);
-// Encode
-// SendMessageOverTheWire - sends the message to a target after marshalling
-int SendMessageOverTheWire(int target_socket, const uint16_t protocol,
-                           const char *src);
 
 #endif

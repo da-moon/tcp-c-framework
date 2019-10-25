@@ -10,10 +10,10 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in serverAddr;
   struct hostent *host;
   long port;
-  if (argc != 3) {
-    fprintf(stderr, "./client [host] [port] \n");
-    exit(1);
-  }
+  //   if (argc < 4) {
+  // fprintf(stderr, "./client [host] [port] [protocol]\n");
+  // exit(1);
+  //   }
   if ((host = gethostbyname(argv[1])) == NULL) {
     fprintf(stderr, "Couldn't get host name\n");
     exit(1);
@@ -28,6 +28,6 @@ int main(int argc, char *argv[]) {
   set_non_blocking(0);
   // Set a handler for the interrupt signal
   signal(SIGINT, interrupt_handler);
-  Loop(connection_socket);
+  Loop(connection_socket, argc, argv);
 }
 void interrupt_handler(int signal) { leave_request(connection_socket); }

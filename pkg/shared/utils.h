@@ -1,6 +1,7 @@
 #ifndef UTILS
 #define UTILS
 #include "consts.h"
+#include <arpa/inet.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

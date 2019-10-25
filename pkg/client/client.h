@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 // main connection loop for client
-void Loop(int connection_socket);
+void Loop(int connection_socket, int argc, char *argv[]);
 // Sets up the socket and establishes connection with server
 void establish_connection_with_server(struct sockaddr_in *serverAddr,
                                       struct hostent *host,

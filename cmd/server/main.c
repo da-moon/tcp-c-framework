@@ -1,3 +1,4 @@
+#include "../../pkg/handlers/handlers.h"
 #include "../../pkg/multiplexer/multiplexer.h"
 #include "../../pkg/queue/queue.h"
 #include "../../pkg/server/server.h"
@@ -21,6 +22,7 @@ int main(int argc, char *argv[]) {
     perror("listen failed: ");
     exit(1);
   }
-  Run(socketFd, (void *)&RequestHandler);
+  InitializeRPCHandlers(socketFd);
+
   close(socketFd);
 }

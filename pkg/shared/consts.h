@@ -1,6 +1,6 @@
 #ifndef CONSTS
 #define CONSTS
-#define MAX_BUFFER 256
+#include <stdint.h>
+#define MAX_BUFFER 1024
 #define PROTOCOL_HEADER_LEN 8
-
 #endif
