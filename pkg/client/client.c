@@ -1,8 +1,20 @@
 #include "client.h"
 // Main loop to take in input and display output result from server
-void Loop(int socket, int argc, char *argv[]) {
+void Loop(int socket) {
   fd_set clientFds;
+  char choice[MAX_BUFFER];
+  int show_menu = 1;
+  int waiting_for_choice = 1;
+  int waiting_for_reply = 0;
   while (1) {
+    if (show_menu) {
+      printf("\n--------------------------------------------------\n");
+      puts("Please select your prefer service:\n  1. Echo\n  2. "
+           "Broadcast\n  3. "
+           "Quit\nEnter your choice: ");
+      show_menu = 0;
+    }
+
     // Reset the connection_file_descriptor_socket set each time since select()
     // modifies it
     FD_ZERO(&clientFds);
@@ -14,22 +26,61 @@ void Loop(int socket, int argc, char *argv[]) {
            connection_file_descriptor_socket < FD_SETSIZE;
            connection_file_descriptor_socket++) {
         if (FD_ISSET(connection_file_descriptor_socket, &clientFds)) {
-          // receive data from server
           if (connection_file_descriptor_socket == socket) {
-            //   reacting to a broadcast protocol server reply
-            // BroadcastProtocolHandleServerReply(socket);
-            //   reacting to a echo protocol server reply
+            if (waiting_for_reply) {
+              if (!bcmp(choice, "1", 1)) {
+                EchoProtocolHandleServerReply(socket);
+                waiting_for_reply = 0;
+                waiting_for_choice = 1;
+                show_menu = 1;
+              } else if (!bcmp(choice, "2", 1)) {
+                BroadcastProtocolHandleServerReply(socket);
+                waiting_for_reply = 0;
+                waiting_for_choice = 1;
+                show_menu = 1;
+              }
+            }
+          } else if (connection_file_descriptor_socket == 0) {
+            if (waiting_for_choice) {
 
-            EchoProtocolHandleServerReply(socket);
-          }
-          // read from keyboard (stdin) and send to server
-          else if (connection_file_descriptor_socket == 0) {
-            //   sending a broadcast protocol msg to server
-            // BroadcastProtocolSendRequestToServer(socket);
-            //   sending a echo protocol msg to server
-            EchoProtocolSendRequestToServer(socket);
+              if (fgets(choice, 1024, stdin) == NULL) {
+                if (errno == EINTR) {
+                  perror("fgets error");
+                  printf("restart...");
+                  continue;
+                } else {
+                  perror("fgets else error");
+                  break;
+                }
+              }
+              if (bcmp(choice, "1", 1) && bcmp(choice, "2", 1) &&
+                  bcmp(choice, "3", 1)) {
+                printf("Please enter a valid number from 1 to 3\n");
+                continue;
+              }
+              waiting_for_choice = 0;
+
+              // Quit-----------------------------------------------------------------------------------------
+              if (!bcmp(choice, "3", 1)) {
+                printf("Your choice is to Quit the program\n");
+                exit(0);
+              }
+              // Echo-----------------------------------------------------------------------------------------
+              if (!bcmp(choice, "1", 1)) {
+                printf("Your choice is Echo Protocol\n");
+                EchoProtocolSendRequestToServer(socket);
+                waiting_for_reply = 1;
+              }
+              // Broadcast-----------------------------------------------------------------------------------------
+              else if (!bcmp(choice, "2", 1)) {
+                printf("Your choice is Broadcast Protocol\n");
+                BroadcastProtocolSendRequestToServer(socket);
+                waiting_for_reply = 1;
+              }
+            }
           }
         }
+        continue;
       }
     }
   }

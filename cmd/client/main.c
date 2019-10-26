@@ -28,6 +28,6 @@ int main(int argc, char *argv[]) {
   set_non_blocking(0);
   // Set a handler for the interrupt signal
   signal(SIGINT, interrupt_handler);
-  Loop(connection_socket, argc, argv);
+  Loop(connection_socket);
 }
 void interrupt_handler(int signal) { leave_request(connection_socket); }

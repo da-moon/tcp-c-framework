@@ -8,10 +8,8 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in serverAddr;
   long port = 8080;
   int socketFd;
-
   if (argc == 2)
     port = strtol(argv[1], NULL, 0);
-
   if ((socketFd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
     perror("Socket creation failed");
     exit(1);

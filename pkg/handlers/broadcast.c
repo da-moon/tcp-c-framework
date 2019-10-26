@@ -15,13 +15,10 @@ void BroadcastProtocolHandleServerReply(int socket) {
   memset(&msgBuffer, 0, sizeof(msgBuffer));
 }
 void BroadcastProtocolSendRequestToServer(int socket) {
-  char payloadBuffer[MAX_BUFFER];
-  fgets(payloadBuffer, MAX_BUFFER - 1, stdin);
+  char data[MAX_BUFFER];
+  fgets(data, MAX_BUFFER - 1, stdin);
   unsigned char request[MAX_BUFFER];
-  fprintf(stderr, "[DEBUG] client read [%d]\n", sizeof(payloadBuffer));
-
-  int mesg_length =
-      MarshallMessage(request, 0xC0DE, BROADCAST_REQUEST, payloadBuffer);
+  int mesg_length = MarshallMessage(request, 0xC0DE, BROADCAST_REQUEST, data);
   if (send(socket, request, MAX_BUFFER, 0) == -1)
     perror("write failed: ");
 }

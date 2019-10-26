@@ -2,6 +2,7 @@
 #define CLIENT
 #include "../handlers/handlers.h"
 #include "../shared/consts.h"
+#include "../shared/utils.h"
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -16,7 +17,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 // main connection loop for client
-void Loop(int connection_socket, int argc, char *argv[]);
+void Loop(int connection_socket);
 // Sets up the socket and establishes connection with server
 void establish_connection_with_server(struct sockaddr_in *serverAddr,
                                       struct hostent *host,

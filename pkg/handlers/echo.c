@@ -15,11 +15,10 @@ void EchoProtocolHandleServerReply(int socket) {
   memset(&msgBuffer, 0, sizeof(msgBuffer));
 }
 void EchoProtocolSendRequestToServer(int socket) {
-  char payloadBuffer[MAX_BUFFER];
-  fgets(payloadBuffer, MAX_BUFFER - 1, stdin);
+  char data[MAX_BUFFER];
+  fgets(data, MAX_BUFFER - 1, stdin);
   unsigned char request[MAX_BUFFER];
-  int mesg_length =
-      MarshallMessage(request, 0xC0DE, ECHO_REQUEST, payloadBuffer);
+  int mesg_length = MarshallMessage(request, 0xC0DE, ECHO_REQUEST, data);
   if (send(socket, request, MAX_BUFFER, 0) == -1)
     perror("write failed: ");
 }
