@@ -31,11 +31,11 @@ PSEP = $(strip $(SEP))
 nullstring :=
 space := $(nullstring)
 SERVER_IP = 127.0.0.1
-SERVER_PORT = 8084
+SERVER_PORT = 8080
 LIBRARIES = $(filter-out $(wildcard ./cmd/*/*.c), $(call rwildcard,./,*.c))
+TARGET = $(notdir $(patsubst %/,%,$(dir $(wildcard ./cmd/*/.))))
 
-.PHONY:  dep client server run-server clean
-.PHONY: run-client
+.PHONY:  dep client run-client server run-server clean
 client: clean
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/client
@@ -67,5 +67,5 @@ dep:
 
 print:
 	- $(CLEAR)
-	- @echo $(space) $(LIBRARIES)
+	- @echo $(space) $(DIRS)
 
