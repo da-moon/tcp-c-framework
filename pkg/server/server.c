@@ -1,5 +1,16 @@
 #include "server.h"
 
+void Bind(struct sockaddr_in *serverAddr, int socketFd, long port) {
+  memset(serverAddr, 0, sizeof(*serverAddr));
+  serverAddr->sin_family = AF_INET;
+  serverAddr->sin_addr.s_addr = htonl(INADDR_ANY);
+  serverAddr->sin_port = htons(port);
+  if (bind(socketFd, (struct sockaddr *)serverAddr,
+           sizeof(struct sockaddr_in)) == -1) {
+    perror("Socket bind failed: ");
+    exit(1);
+  }
+}
 void InitializeRPCHandlers(int socketFd) {
   Multiplexer mux;
   mux.conn = malloc(sizeof *mux.conn);
@@ -30,15 +41,4 @@ void InitializeRPCHandlers(int socketFd) {
   pthread_mutex_destroy(mux.clientListMutex);
   free(mux.clientListMutex);
   free(mux.conn);
-}
-void Bind(struct sockaddr_in *serverAddr, int socketFd, long port) {
-  memset(serverAddr, 0, sizeof(*serverAddr));
-  serverAddr->sin_family = AF_INET;
-  serverAddr->sin_addr.s_addr = htonl(INADDR_ANY);
-  serverAddr->sin_port = htons(port);
-  if (bind(socketFd, (struct sockaddr *)serverAddr,
-           sizeof(struct sockaddr_in)) == -1) {
-    perror("Socket bind failed: ");
-    exit(1);
-  }
 }

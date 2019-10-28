@@ -1,6 +1,6 @@
 #include "multiplexer.h"
 
-// Thread to handle new connections. Adds client's fd to list of client fds and
+// Adds client's fd to list of client fds and
 // spawns a new ClientHandler thread for it
 void *Multiplex(void *arg) {
   Multiplexer *mux = (Multiplexer *)arg;
