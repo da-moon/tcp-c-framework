@@ -39,12 +39,14 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
     // present.
     while ((ent = readdir(dir)) != NULL) {
       char temp[256];
+      memset(temp,0,256);
 
       // Prints all of the data to the console.
       sscanf(ent->d_name, "%s\n",
              temp); // Trimming on both sides occurs here
       strcat(payload, temp);
       strcat(payload, " | ");
+      
     }
     closedir(dir);
   }
@@ -65,6 +67,11 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
   int mesg_length = MarshallMessage(reply, 0xC0DE, protocol, arr_ptr);
   if (send(socket, reply, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
+    memset(reply, 0, sizeof(reply));
+    memset(arr_ptr, 0, sizeof(arr_ptr));
+    // memset(payload, 0, sizeof(payload));
+
   fprintf(stderr,
-          "[DEBUG] List Directory Handler Server : Replying kbac .... \n");
+          "[DEBUG] List Directory Handler Server : Replying back .... \n");
+          
 }

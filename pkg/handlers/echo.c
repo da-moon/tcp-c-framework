@@ -4,6 +4,8 @@ void EchoProtocolSendRequestToServer(int socket) {
   char input[MAX_BUFFER];
   fgets(input, MAX_BUFFER - 1, stdin);
   char *arr_ptr = &input[0];
+    arr_ptr[strlen(arr_ptr) - 1] = '\0';
+
   char *request = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
   int mesg_length = MarshallMessage(request, 0xC0DE, ECHO_REQUEST, input);
   Message message;
