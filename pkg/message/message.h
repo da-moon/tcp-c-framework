@@ -28,7 +28,7 @@ typedef struct {
 
 // UnmarshallMessage - returns a message struct based on a given
 // bytestream
-Message *UnmarshallMessage(int message_sender, const char *marshalled_message);
+Message UnmarshallMessage(int message_sender, const char *marshalled_message);
 // MarshallMessage - takes input and returns an encoded sequence
 int MarshallMessage(unsigned char *dest, const uint16_t magic,
                     const uint16_t protocol, const char *content);

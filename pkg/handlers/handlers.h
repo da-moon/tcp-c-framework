@@ -24,12 +24,10 @@
 
 typedef enum {
   // 'A' in hex
-  BROADCAST_REQUEST = 0x0041,
-  //   'a' in hex
-  BROADCAST_REPLY = 0x0061,
-  // 'B' in hex
   ECHO_REQUEST = 0x0042,
+  //   'a' in hex
   ECHO_REPLY = 0x0062,
+
   UNKNOWN_TYPE = 0xFFFF
 } MessageType;
 // RequestHandler - this is the main method
@@ -38,25 +36,9 @@ typedef enum {
 // handler
 void *ServerRequestHandler(void *arg);
 
-// BroadcastProtocolHandleServerReply -
-// reads server reply and multiplexes it to an action to be taken
-// based on the reply
-void BroadcastProtocolHandleServerReply(int socket);
-// BroadcastProtocolSendRequestToServer -
-// reads from stdin and sends a message to server
-// it uses BROADCAST_REQUEST as the protocol value
-void BroadcastProtocolSendRequestToServer(int socket);
-// The "consumer" -- waits for the Queue to
-// have messages then takes them out and broadcasts to all clients
-// effectively making a chat server.
-void BroadcastProtocolServerHandler(char *result, Message *message);
-// EchoProtocolHandleServerReply - behaves the same way
-// as BroadcastProtocolHandleServerReply ... it
-// just prints back the recieved server message
-void EchoProtocolHandleServerReply(int socket);
 // EchoProtocolSendRequestToServer - reads from stdin and
 // sends a message to server . it uses ECHO_REQUEST
 // as the protocol value
 void EchoProtocolSendRequestToServer(int socket);
-void EchoProtocolServerHandler(char *result, Message *message);
+void EchoProtocolServerHandler(int socket, Message message);
 #endif

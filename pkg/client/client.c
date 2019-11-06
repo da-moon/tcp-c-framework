@@ -2,11 +2,12 @@
 // Main loop to take in input and display output result from server
 void Loop(int socket) {
   fd_set clientFds;
-  char choice[MAX_BUFFER];
+  //   char choice[MAX_BUFFER];
   int show_menu = 1;
   int waiting_for_choice = 1;
   int waiting_for_reply = 0;
   while (1) {
+
     if (show_menu) {
       printf("\n--------------------------------------------------\n");
       puts("Please select your prefer service:\n  1. Echo\n  2. "
@@ -15,77 +16,99 @@ void Loop(int socket) {
       show_menu = 0;
     }
 
-    // Reset the connection_file_descriptor_socket set each time since select()
+    // Reset the socket set each time since select()
     // modifies it
     FD_ZERO(&clientFds);
     FD_SET(socket, &clientFds);
     FD_SET(0, &clientFds);
-    // wait for an available connection_file_descriptor_socket
+    // wait for an available socket
     if (select(FD_SETSIZE, &clientFds, NULL, NULL, NULL) != -1) {
       for (int connection_file_descriptor_socket = 0;
            connection_file_descriptor_socket < FD_SETSIZE;
            connection_file_descriptor_socket++) {
         if (FD_ISSET(connection_file_descriptor_socket, &clientFds)) {
           if (connection_file_descriptor_socket == socket) {
-            if (waiting_for_reply) {
-              if (!bcmp(choice, "1", 1)) {
-                EchoProtocolHandleServerReply(socket);
-                waiting_for_reply = 0;
-                waiting_for_choice = 1;
-                show_menu = 1;
-              } else if (!bcmp(choice, "2", 1)) {
-                BroadcastProtocolHandleServerReply(socket);
-                waiting_for_reply = 0;
-                waiting_for_choice = 1;
-                show_menu = 1;
-              }
-            }
-          } else if (connection_file_descriptor_socket == 0) {
-            if (waiting_for_choice) {
+            printf("SERVER SOCKET CONNECTED\n");
+            char *header = malloc(PROTOCOL_HEADER_LEN);
+            int n = read(socket, header, PROTOCOL_HEADER_LEN);
+            printf("size read from socket [%d] \n", n);
+            uint16_t magic = ExtractMessageMagic(header);
+            printf("server reply  magic [0x%04hX] \n", magic);
+            if (magic == 0xC0DE) {
+              uint16_t protocol = ExtractMessageProtocol(header);
+              uint32_t payload_size = ExtractMessageBodySize(header);
+              char *recv_buffer = malloc(payload_size);
+              read(socket, recv_buffer, payload_size);
+              Message reply;
+              reply.message_sender = socket;
+              reply.magic = magic;
+              reply.protocol = protocol;
+              reply.size = payload_size;
+              reply.body = recv_buffer;
 
-              if (fgets(choice, 1024, stdin) == NULL) {
-                if (errno == EINTR) {
-                  perror("fgets error");
-                  printf("restart...");
-                  continue;
-                } else {
-                  perror("fgets else error");
-                  break;
-                }
+              fprintf(stderr,
+                      "MAGIC "
+                      "[0x%04hX] | PROTOCOL "
+                      "[0x%04hX] = [%C] | data : %s\n",
+                      reply.magic, reply.protocol, reply.protocol, reply.body);
+              switch (reply.protocol) {
+              case ECHO_REPLY: {
+                fprintf(stderr, "[ ECHO FROM SERVER ] ");
+                break;
               }
-              if (bcmp(choice, "1", 1) && bcmp(choice, "2", 1) &&
-                  bcmp(choice, "3", 1)) {
-                printf("Please enter a valid number from 1 to 3\n");
-                continue;
+              default: {
+                break;
               }
-              waiting_for_choice = 0;
-
-              // Quit-----------------------------------------------------------------------------------------
-              if (!bcmp(choice, "3", 1)) {
-                printf("Your choice is to Quit the program\n");
-                exit(0);
               }
-              // Echo-----------------------------------------------------------------------------------------
-              if (!bcmp(choice, "1", 1)) {
-                printf("Your choice is Echo Protocol\n");
-                EchoProtocolSendRequestToServer(socket);
-                waiting_for_reply = 1;
-              }
-              // Broadcast-----------------------------------------------------------------------------------------
-              else if (!bcmp(choice, "2", 1)) {
-                printf("Your choice is Broadcast Protocol\n");
-                BroadcastProtocolSendRequestToServer(socket);
-                waiting_for_reply = 1;
-              }
+            } else {
+              break;
             }
           }
+          waiting_for_choice = 1;
+          show_menu = 1;
+          // break;
+        }
+
+        // continue;
+        if (connection_file_descriptor_socket == 0) {
+          if (waiting_for_choice) {
+            char choice[MAX_BUFFER];
+            if (fgets(choice, MAX_BUFFER - 1, stdin) == NULL) {
+              if (errno == EINTR) {
+                perror("fgets error");
+                printf("restart...");
+                continue;
+              } else {
+                perror("fgets else error");
+                break;
+              }
+            }
+            if (bcmp(choice, "1", 1) && bcmp(choice, "2", 1) &&
+                bcmp(choice, "3", 1)) {
+              printf("Please enter a valid number from 1 to 3\n");
+              continue;
+            }
+            system("clear");
+
+            waiting_for_choice = 0;
+            // Quit-----------------------------------------------------------------------------------------
+            if (!bcmp(choice, "3", 1)) {
+              printf("Your choice is to Quit the program\n");
+              exit(0);
+            }
+            // Echo-----------------------------------------------------------------------------------------
+            if (!bcmp(choice, "1", 1)) {
+              printf("Your choice is Echo Protocol\n");
+              EchoProtocolSendRequestToServer(socket);
+            }
+          }
+          printf("MSG WAS SENT SUCCEFULLY\n");
         }
         continue;
       }
     }
   }
 }
-
 void establish_connection_with_server(struct sockaddr_in *serverAddr,
                                       struct hostent *host,
                                       int connection_socket, long port) {

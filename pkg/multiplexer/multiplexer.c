@@ -44,32 +44,34 @@ void *ClientHandler(void *arg) {
 
   Queue *q = mux->Queue;
   int clientSocketFd = mux->clientSocketFd;
-  unsigned char buffer[MAX_BUFFER];
-  int read_size;
-  while ((read_size = recv(clientSocketFd, buffer, MAX_BUFFER, 0)) > 0) {
-
-    // If the client sent /exit\n,
-    // remove them from the client list and close their socket
-    if (strcmp(buffer, "/exit\n") == 0) {
-      fprintf(stderr, "Client on socket %d has disconnected.\n",
-              clientSocketFd);
-      Disconnect(mux, clientSocketFd);
-      return NULL;
-    } else {
-      // Wait for Queue to not be full before pushing message
-      while (q->full) {
-        pthread_cond_wait(q->notFull, q->mutex);
-      }
-      pthread_mutex_lock(q->mutex);
-      // extracting message length
-      const int message_size = ExtractMessageBodySize(buffer);
-
-      if (message_size != 0) {
-
-        const Message *message = UnmarshallMessage(clientSocketFd, buffer);
-        if (message != NULL) {
-          Push(q, clientSocketFd, message);
+  char *header = malloc(PROTOCOL_HEADER_LEN + 1);
+  int n;
+  while ((n = read(clientSocketFd, header, PROTOCOL_HEADER_LEN)) > 1) {
+    uint16_t magic = ExtractMessageMagic(header);
+    if (magic == 0xC0DE) {
+      uint16_t protocol = ExtractMessageProtocol(header);
+      uint32_t payload_size = ExtractMessageBodySize(header);
+      char *recv_buffer = malloc(payload_size);
+      read(clientSocketFd, recv_buffer, payload_size);
+      if (strcmp(recv_buffer, "/exit\n") == 0) {
+        fprintf(stderr, "Client on socket %d has disconnected.\n",
+                clientSocketFd);
+        Disconnect(mux, clientSocketFd);
+        return NULL;
+      } else {
+        // Wait for Queue to not be full before pushing message
+        while (q->full) {
+          pthread_cond_wait(q->notFull, q->mutex);
         }
+        pthread_mutex_lock(q->mutex);
+
+        Message message;
+        message.message_sender = clientSocketFd;
+        message.magic = magic;
+        message.protocol = protocol;
+        message.size = payload_size;
+        message.body = recv_buffer;
+        Push(q, clientSocketFd, message);
       }
       pthread_mutex_unlock(q->mutex);
       pthread_cond_signal(q->notEmpty);

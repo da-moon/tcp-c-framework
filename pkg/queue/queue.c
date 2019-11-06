@@ -45,7 +45,7 @@ void DestroyQueue(Queue *q) {
 }
 
 // Push to end of Queue
-void Push(Queue *q, int origin, const Message *msg) {
+void Push(Queue *q, int origin, const Message msg) {
 
   q->messages[q->tail] = msg;
   q->tail++;
@@ -57,8 +57,8 @@ void Push(Queue *q, int origin, const Message *msg) {
 }
 
 // Pop front of Queue
-Message *Pop(Queue *q) {
-  Message *entity = q->messages[q->head];
+Message Pop(Queue *q) {
+  Message entity = q->messages[q->head];
   q->head++;
   if (q->head == MAX_BUFFER)
     q->head = 0;

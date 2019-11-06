@@ -3,33 +3,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-void EchoProtocolHandleServerReply(int socket) {
-  char msgBuffer[MAX_BUFFER];
-  int numBytesRead = read(socket, msgBuffer, MAX_BUFFER - 1);
-  if (numBytesRead > 1) {
-    Message *reply = UnmarshallMessage(socket, msgBuffer);
-    // reply->body[reply->size + 1] = '\0';
-    fprintf(stderr, "%s\n", reply->body);
-  }
-
-  memset(&msgBuffer, 0, sizeof(msgBuffer));
-}
 void EchoProtocolSendRequestToServer(int socket) {
-  char data[MAX_BUFFER];
-  fgets(data, MAX_BUFFER - 1, stdin);
-  unsigned char request[MAX_BUFFER];
-  int mesg_length = MarshallMessage(request, 0xC0DE, ECHO_REQUEST, data);
-  if (send(socket, request, MAX_BUFFER, 0) == -1)
-    perror("write failed: ");
-}
+  char input[MAX_BUFFER];
+  fgets(input, MAX_BUFFER - 1, stdin);
+  char *arr_ptr = &input[0];
+  char *request = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
+  int mesg_length = MarshallMessage(request, 0xC0DE, ECHO_REQUEST, input);
+  Message message;
+  message.body = (char *)(request + PROTOCOL_HEADER_LEN);
 
-void EchoProtocolServerHandler(char *result, Message *message) {
-  unsigned char *src[MAX_BUFFER];
-  fprintf(stderr, "[DEBUG] server : recieved message data: %s\n",
-          message->body);
-  fprintf(stderr, "[DEBUG] server : Echoing .... \n");
-  memset(src, 0, MAX_BUFFER);
-  strcpy(src, "[ECHO-PROTOCOL] ");
-  strcat(src, message->body);
-  MarshallMessage(result, 0xC0DE, ECHO_REPLY, src);
+  if (send(socket, request, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
+    perror("write failed: ");
+  fprintf(stderr, "[DEBUG] client : Echoing .... \n");
+}
+void EchoProtocolServerHandler(int socket, Message message) {
+  char *arr_ptr = &message.body[0];
+  int payload_length = strlen(arr_ptr);
+
+  char *reply = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
+  int mesg_length = MarshallMessage(reply, 0xC0DE, ECHO_REPLY, arr_ptr);
+  if (send(socket, reply, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
+    perror("write failed: ");
+  fprintf(stderr, "[DEBUG] Echo Handler Server : Replying bac .... \n");
 }

@@ -1,49 +1,39 @@
 #include "message.h"
-Message *UnmarshallMessage(int message_sender, const char *marshalled_message) {
-  const int message_size = ExtractMessageBodySize(marshalled_message);
+Message UnmarshallMessage(int message_sender, const char *marshalled_message) {
+  const uint32_t message_size = ExtractMessageBodySize(marshalled_message);
   const uint16_t message_magic = ExtractMessageMagic(marshalled_message);
   const uint16_t message_protocol = ExtractMessageProtocol(marshalled_message);
   const char *message_body = ExtractMessageBody(marshalled_message);
-  fprintf(stderr,
-          "[DEBUG] UNMARSHALLING MESSAGE - ORIGIN SOCKET [%d] | MAGIC "
-          "[0x%04hX] | PROTOCOL "
-          "[0x%04hX] = [%C] | BODY SIZE [%d] | BODY [%s] \n",
-          message_sender, message_magic, message_protocol, message_protocol,
-          message_size, message_body);
-  Message *p = (Message *)malloc(sizeof(Message));
-  if (p == NULL) {
+
+  Message p;
+  p.body = malloc(sizeof(message_body));
+  if (p.body == NULL) {
     perror("Couldn't allocate anymore memory!");
     exit(EXIT_FAILURE);
   }
-  p->body = malloc(sizeof(message_body));
-  if (p->body == NULL) {
-    perror("Couldn't allocate anymore memory!");
-    exit(EXIT_FAILURE);
-  }
-  p->message_sender = message_sender;
-  p->protocol = message_protocol;
-  p->magic = message_magic;
-  p->size = message_size;
-  strcpy(p->body, message_body);
+  p.message_sender = message_sender;
+  p.protocol = message_protocol;
+  p.magic = message_magic;
+  p.size = message_size;
+  strcpy(p.body, message_body);
   return p;
+  //   printf("EXECUTING BROADCAST REPLY ...\n");
 }
 
 int MarshallMessage(unsigned char *dest, const uint16_t magic,
                     const uint16_t protocol, const char *content) {
-  //   int payload_length = sizeof(content);
-  int payload_length = MAX_BUFFER;
-  //   fprintf(stderr, "[DEBUG] size before enc %d\n", payload_length);
-
+  char *arr_ptr = &content[0];
+  int payload_length = strlen(arr_ptr);
   // Write magic short 2 bytes
   *(uint16_t *)(dest) = htons(magic);
   // Write protocol - short 2 bytes
   *(uint16_t *)(dest + 2) = htons(protocol);
-
   // Write body length - long 4 bytes
   *(uint32_t *)(dest + 4) = htonl(payload_length);
   // Write message
+
   strncpy((char *)(dest + PROTOCOL_HEADER_LEN), content, payload_length);
-  //   return PROTOCOL_HEADER_LEN + payload_length;
+
   return PROTOCOL_HEADER_LEN + payload_length;
 }
 // Message to real content
@@ -51,10 +41,11 @@ int MarshallMessage(unsigned char *dest, const uint16_t magic,
 const char *ExtractMessageBody(const unsigned char *src) {
   // int ExtractMessageData(unsigned char *dest, const unsigned char *src) {
   char *dest;
-  int decoded_body_length = ExtractMessageBodySize(src);
+  uint32_t decoded_body_length = ExtractMessageBodySize(src);
+  printf("Extract msg body -> %lu\n", decoded_body_length);
 
-  dest = malloc(decoded_body_length + 1);
-  strncpy((char *)dest, (char *)src + PROTOCOL_HEADER_LEN, decoded_body_length);
+  dest = malloc(decoded_body_length + PROTOCOL_HEADER_LEN + 20);
+  strncpy((char *)dest, (char *)src + PROTOCOL_HEADER_LEN, 14);
   dest[decoded_body_length] = 0;
   return dest;
 }
