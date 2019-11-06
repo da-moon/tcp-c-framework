@@ -29,6 +29,7 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
   uint16_t protocol;
   char buf[256];
   sscanf(message.body, "%s", buf); // Trimming on both sides occurs here
+        
   dir = opendir(buf);
   // If the directory exists.
   if (dir != NULL) {
@@ -56,7 +57,6 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
     protocol = ERROR_MESSAGE;
     closedir(dir);
   }
-  printf("%s\n", payload);
 
   char *arr_ptr = &payload[0];
   int payload_length = strlen(arr_ptr);

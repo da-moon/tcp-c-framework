@@ -1,14 +1,18 @@
 #include "client.h"
 // Main loop to take in input and display output result from server
-void Loop(int socket) {
+void Loop(int socket)
+{
+  int file_count = 1;
   fd_set clientFds;
   //   char choice[MAX_BUFFER];
   int show_menu = 1;
   int waiting_for_choice = 1;
   int waiting_for_reply = 0;
-  while (1) {
+  while (1)
+  {
 
-    if (show_menu) {
+    if (show_menu)
+    {
       printf("\n--------------------------------------------------\n");
       puts("Please select your prefer service:\n  1. Echo\n  2. "
            "Download\n  3. Upload\n  4. Change Directory\n  5. List "
@@ -23,19 +27,25 @@ void Loop(int socket) {
     FD_SET(socket, &clientFds);
     FD_SET(0, &clientFds);
     // wait for an available socket
-    if (select(FD_SETSIZE, &clientFds, NULL, NULL, NULL) != -1) {
+    if (select(FD_SETSIZE, &clientFds, NULL, NULL, NULL) != -1)
+    {
       for (int connection_file_descriptor_socket = 0;
            connection_file_descriptor_socket < FD_SETSIZE;
-           connection_file_descriptor_socket++) {
-        if (FD_ISSET(connection_file_descriptor_socket, &clientFds)) {
-          if (connection_file_descriptor_socket == socket) {
+           connection_file_descriptor_socket++)
+      {
+        if (FD_ISSET(connection_file_descriptor_socket, &clientFds))
+        {
+          if (connection_file_descriptor_socket == socket)
+          {
             printf("SERVER SOCKET CONNECTED\n");
             char *header = malloc(PROTOCOL_HEADER_LEN);
             int n = read(socket, header, PROTOCOL_HEADER_LEN);
-            printf("size read from socket [%d] \n", n);
-            if (n > 1) {
+            printf("size read  [%d] \n", n);
+            if (n > 1)
+            {
               uint16_t magic = ExtractMessageMagic(header);
-              if (magic == 0xC0DE) {
+              if (magic == 0xC0DE)
+              {
                 uint16_t protocol = ExtractMessageProtocol(header);
                 uint32_t payload_size = ExtractMessageBodySize(header);
                 char *recv_buffer = malloc(payload_size);
@@ -47,12 +57,15 @@ void Loop(int socket) {
                 reply.size = payload_size;
                 reply.body = recv_buffer;
 
-                switch (reply.protocol) {
-                case ERROR_MESSAGE: {
+                switch (reply.protocol)
+                {
+                case ERROR_MESSAGE:
+                {
                   fprintf(stderr, "[ ERROR MESSAGE ] : [ %s ]", reply.body);
                   break;
                 }
-                case ECHO_REPLY: {
+                case ECHO_REPLY:
+                {
                   fprintf(stderr,
                           "MAGIC "
                           "[0x%04hX] | PROTOCOL "
@@ -62,15 +75,32 @@ void Loop(int socket) {
                   fprintf(stderr, "[ ECHO FROM SERVER ] ");
                   break;
                 }
-                case LIST_DIR_REPLY: {
+                case LIST_DIR_REPLY:
+                {
                   fprintf(stderr, "[ List Dir Result ] : [ %s ]", reply.body);
                   break;
                 }
-                default: {
+                case FILE_REPLY:
+                {
+                  // this can be piped to a file
+                  fprintf(stderr, "[ File Download Reply ] : [ %s ]", reply.body);
+                  // the following would store the file ...
+                  FILE *fp;
+                  char buf[256];
+                  // sscanf(file_count, "./fixture/client/recieved", buf);
+                  fp = fopen("./fixture/client/recieved", "w+");
+                  fprintf(fp, "%s\n", reply.body);
+                  fclose(fp);
+                  break;
+                }
+                default:
+                {
                   break;
                 }
                 }
-              } else {
+              }
+              else
+              {
                 break;
               }
 
@@ -83,59 +113,72 @@ void Loop(int socket) {
         }
 
         // continue;
-        if (connection_file_descriptor_socket == 0) {
-          if (waiting_for_choice) {
+        if (connection_file_descriptor_socket == 0)
+        {
+          if (waiting_for_choice)
+          {
             char choice[MAX_BUFFER];
-            if (fgets(choice, MAX_BUFFER - 1, stdin) == NULL) {
-              if (errno == EINTR) {
+            if (fgets(choice, MAX_BUFFER - 1, stdin) == NULL)
+            {
+              if (errno == EINTR)
+              {
                 perror("fgets error");
                 printf("restart...");
                 continue;
-              } else {
+              }
+              else
+              {
                 perror("fgets else error");
                 break;
               }
             }
             if (bcmp(choice, "1", 1) && bcmp(choice, "2", 1) &&
                 bcmp(choice, "3", 1) && bcmp(choice, "4", 1) &&
-                bcmp(choice, "5", 1) && bcmp(choice, "6", 1)) {
-              printf("Please enter a valid number from 1 to 3\n");
+                bcmp(choice, "5", 1) && bcmp(choice, "6", 1))
+            {
+              printf("Please enter a valid number from 1 to 6\n");
               continue;
             }
             system("clear");
 
             waiting_for_choice = 0;
             // Quit-----------------------------------------------------------------------------------------
-            if (!bcmp(choice, "6", 1)) {
+            if (!bcmp(choice, "6", 1))
+            {
               printf("Your choice is to Quit the program\n");
               leave_request(socket);
               exit(0);
             }
             // Echo-----------------------------------------------------------------------------------------
-            if (!bcmp(choice, "1", 1)) {
+            if (!bcmp(choice, "1", 1))
+            {
               printf("Your choice is Echo Protocol\n");
               EchoProtocolSendRequestToServer(socket);
             }
             // Download-----------------------------------------------------------------------------------------
-            if (!bcmp(choice, "2", 1)) {
+            if (!bcmp(choice, "2", 1))
+            {
               printf("Your choice is Download Protocol\n");
               DownloadProtocolSendRequestToServer(socket);
             }
             // Upload-----------------------------------------------------------------------------------------
-            if (!bcmp(choice, "3", 1)) {
+            if (!bcmp(choice, "3", 1))
+            {
               printf("Your choice is Upload Protocol\n");
               UploadProtocolSendRequestToServer(socket);
             }
             // Change
             // Directory-----------------------------------------------------------------------------------------
 
-            if (!bcmp(choice, "4", 1)) {
+            if (!bcmp(choice, "4", 1))
+            {
               printf("Your choice is ChangeDirectory Protocol\n");
               ChangeDirectoryProtocolSendRequestToServer(socket);
             }
             // List
             // Directory-----------------------------------------------------------------------------------------
-            if (!bcmp(choice, "5", 1)) {
+            if (!bcmp(choice, "5", 1))
+            {
               printf("Your choice is List Directory Protocol\n");
               ListDirectoryProtocolSendRequestToServer(socket);
             }
@@ -148,19 +191,22 @@ void Loop(int socket) {
 }
 void establish_connection_with_server(struct sockaddr_in *serverAddr,
                                       struct hostent *host,
-                                      int connection_socket, long port) {
+                                      int connection_socket, long port)
+{
   memset(serverAddr, 0, sizeof(serverAddr));
   serverAddr->sin_family = AF_INET;
   serverAddr->sin_addr = *((struct in_addr *)host->h_addr_list[0]);
   serverAddr->sin_port = htons(port);
   if (connect(connection_socket, (struct sockaddr *)serverAddr,
-              sizeof(struct sockaddr)) < 0) {
+              sizeof(struct sockaddr)) < 0)
+  {
     perror("Couldn't connect to server");
     exit(1);
   }
 }
 
-void set_non_blocking(int file_descriptor) {
+void set_non_blocking(int file_descriptor)
+{
   int flags = fcntl(file_descriptor, F_GETFL);
   if (flags < 0)
     perror("fcntl failed");
@@ -168,7 +214,8 @@ void set_non_blocking(int file_descriptor) {
   fcntl(file_descriptor, F_SETFL, flags);
 }
 
-void leave_request(int socket) {
+void leave_request(int socket)
+{
   if (write(socket, "/exit\n", MAX_BUFFER - 1) == -1)
     perror("write failed: ");
 
