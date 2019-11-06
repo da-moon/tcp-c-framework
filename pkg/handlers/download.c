@@ -6,6 +6,7 @@ void DownloadProtocolSendRequestToServer(int socket) {
   char input[MAX_BUFFER];
   fgets(input, MAX_BUFFER - 1, stdin);
   char *arr_ptr = &input[0];
+  arr_ptr = Trim(arr_ptr);
   char *request = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
   int mesg_length = MarshallMessage(request, 0xC0DE, DOWNLOAD_REQUEST, input);
   Message message;

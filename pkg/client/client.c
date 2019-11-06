@@ -33,41 +33,52 @@ void Loop(int socket) {
             char *header = malloc(PROTOCOL_HEADER_LEN);
             int n = read(socket, header, PROTOCOL_HEADER_LEN);
             printf("size read from socket [%d] \n", n);
-            uint16_t magic = ExtractMessageMagic(header);
-            printf("server reply  magic [0x%04hX] \n", magic);
-            if (magic == 0xC0DE) {
-              uint16_t protocol = ExtractMessageProtocol(header);
-              uint32_t payload_size = ExtractMessageBodySize(header);
-              char *recv_buffer = malloc(payload_size);
-              read(socket, recv_buffer, payload_size);
-              Message reply;
-              reply.message_sender = socket;
-              reply.magic = magic;
-              reply.protocol = protocol;
-              reply.size = payload_size;
-              reply.body = recv_buffer;
+            if (n > 1) {
+              uint16_t magic = ExtractMessageMagic(header);
+              if (magic == 0xC0DE) {
+                uint16_t protocol = ExtractMessageProtocol(header);
+                uint32_t payload_size = ExtractMessageBodySize(header);
+                char *recv_buffer = malloc(payload_size);
+                read(socket, recv_buffer, payload_size);
+                Message reply;
+                reply.message_sender = socket;
+                reply.magic = magic;
+                reply.protocol = protocol;
+                reply.size = payload_size;
+                reply.body = recv_buffer;
 
-              switch (reply.protocol) {
-              case ECHO_REPLY: {
-                fprintf(stderr,
-                        "MAGIC "
-                        "[0x%04hX] | PROTOCOL "
-                        "[0x%04hX] = [%C] | data : %s\n",
-                        reply.magic, reply.protocol, reply.protocol,
-                        reply.body);
-                fprintf(stderr, "[ ECHO FROM SERVER ] ");
+                switch (reply.protocol) {
+                case ERROR_MESSAGE: {
+                  fprintf(stderr, "[ ERROR MESSAGE ] : [ %s ]", reply.body);
+                  break;
+                }
+                case ECHO_REPLY: {
+                  fprintf(stderr,
+                          "MAGIC "
+                          "[0x%04hX] | PROTOCOL "
+                          "[0x%04hX] = [%C] | data : %s\n",
+                          reply.magic, reply.protocol, reply.protocol,
+                          reply.body);
+                  fprintf(stderr, "[ ECHO FROM SERVER ] ");
+                  break;
+                }
+                case LIST_DIR_REPLY: {
+                  fprintf(stderr, "[ List Dir Result ] : [ %s ]", reply.body);
+                  break;
+                }
+                default: {
+                  break;
+                }
+                }
+              } else {
                 break;
               }
-              default: {
-                break;
-              }
-              }
-            } else {
-              break;
+
+              show_menu = 1;
             }
           }
+
           waiting_for_choice = 1;
-          show_menu = 1;
           // break;
         }
 

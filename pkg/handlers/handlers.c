@@ -41,7 +41,7 @@ void *ServerRequestHandler(void *arg) {
         }
         case LIST_DIR_REQUEST: {
           printf("[DEBUG] Server Recieved List Directory Request\n");
-          //   ListDirectoryProtocolServerHandler(socket, message);
+          ListDirectoryProtocolServerHandler(socket, message);
           break;
         }
         default: {

@@ -2,6 +2,7 @@
 
 #include <dirent.h>
 #include <stdint.h>
+#include <string.h>
 
 void ListDirectoryProtocolSendRequestToServer(int socket) {
   printf("Enter Directory name For server list\n");
@@ -9,7 +10,7 @@ void ListDirectoryProtocolSendRequestToServer(int socket) {
   fgets(input, MAX_BUFFER - 1, stdin);
   char *arr_ptr = &input[0];
   char *request = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
-  int mesg_length = MarshallMessage(request, 0xC0DE, LIST_DIR_REQUEST, input);
+  int mesg_length = MarshallMessage(request, 0xC0DE, LIST_DIR_REQUEST, arr_ptr);
   Message message;
   message.body = (char *)(request + PROTOCOL_HEADER_LEN);
 
@@ -26,32 +27,37 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
   DIR *dir;
   char payload[MAX_BUFFER];
   uint16_t protocol;
+  char buf[256];
+  sscanf(message.body, "%s", buf); // Trimming on both sides occurs here
+  dir = opendir(buf);
   // If the directory exists.
-  if ((dir = opendir(message.body)) != NULL) {
+  if (dir != NULL) {
     struct dirent *ent;
     protocol = LIST_DIR_REPLY;
-    /* Prepearing the File pointer for use in the while loop.
-    Pointer needed for file access and output. */
-    FILE *fp;
-
-    // While we are in a directory and there are other directories present.
+    // While we are in a directory and there are other directories
+    // present.
     while ((ent = readdir(dir)) != NULL) {
+      char temp[256];
+
       // Prints all of the data to the console.
-      printf("[DEBUG] '%s\n", ent->d_name);
-      fprintf(payload, "%s\n", ent->d_name);
+      sscanf(ent->d_name, "%s\n",
+             temp); // Trimming on both sides occurs here
+      strcat(payload, temp);
+      strcat(payload, " | ");
     }
-    // Closes file ponter & directory pointer, free's the data and shows where
-    // the log was saved to.
     closedir(dir);
   }
   // If the directory does not exist.
   else if (dir == NULL) {
-    fprintf(payload,
-            "You either typed the path incorrectly or the directory does not "
-            "existn");
+    memset(payload, 0, sizeof(payload));
 
+    strcpy(payload, "You either typed the path incorrectly or the directory "
+                    "does not existn");
+    protocol = ERROR_MESSAGE;
     closedir(dir);
   }
+  printf("%s\n", payload);
+
   char *arr_ptr = &payload[0];
   int payload_length = strlen(arr_ptr);
 
