@@ -11,8 +11,9 @@ void Loop(int socket) {
     if (show_menu) {
       printf("\n--------------------------------------------------\n");
       puts("Please select your prefer service:\n  1. Echo\n  2. "
-           "Broadcast\n  3. "
-           "Quit\nEnter your choice: ");
+           "Download\n  3. Upload\n  4. Change Directory\n  5. List "
+           "Directory\n  "
+           "6. Quit\nEnter your choice: ");
       show_menu = 0;
     }
 
@@ -46,13 +47,14 @@ void Loop(int socket) {
               reply.size = payload_size;
               reply.body = recv_buffer;
 
-              fprintf(stderr,
-                      "MAGIC "
-                      "[0x%04hX] | PROTOCOL "
-                      "[0x%04hX] = [%C] | data : %s\n",
-                      reply.magic, reply.protocol, reply.protocol, reply.body);
               switch (reply.protocol) {
               case ECHO_REPLY: {
+                fprintf(stderr,
+                        "MAGIC "
+                        "[0x%04hX] | PROTOCOL "
+                        "[0x%04hX] = [%C] | data : %s\n",
+                        reply.magic, reply.protocol, reply.protocol,
+                        reply.body);
                 fprintf(stderr, "[ ECHO FROM SERVER ] ");
                 break;
               }
@@ -84,7 +86,8 @@ void Loop(int socket) {
               }
             }
             if (bcmp(choice, "1", 1) && bcmp(choice, "2", 1) &&
-                bcmp(choice, "3", 1)) {
+                bcmp(choice, "3", 1) && bcmp(choice, "4", 1) &&
+                bcmp(choice, "5", 1) && bcmp(choice, "6", 1)) {
               printf("Please enter a valid number from 1 to 3\n");
               continue;
             }
@@ -92,14 +95,20 @@ void Loop(int socket) {
 
             waiting_for_choice = 0;
             // Quit-----------------------------------------------------------------------------------------
-            if (!bcmp(choice, "3", 1)) {
+            if (!bcmp(choice, "6", 1)) {
               printf("Your choice is to Quit the program\n");
+              leave_request(socket);
               exit(0);
             }
             // Echo-----------------------------------------------------------------------------------------
             if (!bcmp(choice, "1", 1)) {
               printf("Your choice is Echo Protocol\n");
               EchoProtocolSendRequestToServer(socket);
+            }
+            // Echo-----------------------------------------------------------------------------------------
+            if (!bcmp(choice, "2", 1)) {
+              printf("Your choice is Download Protocol\n");
+              DownloadProtocolSendRequestToServer(socket);
             }
           }
           printf("MSG WAS SENT SUCCEFULLY\n");

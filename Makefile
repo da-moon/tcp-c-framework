@@ -36,7 +36,7 @@ LIBRARIES = $(filter-out $(wildcard ./cmd/*/*.c), $(call rwildcard,./,*.c))
 TARGET = $(notdir $(patsubst %/,%,$(dir $(wildcard ./cmd/*/.))))
 
 .PHONY:  dep client run-client server run-server clean
-client: clean
+client: 
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/client
 	- gcc -o ./bin/client ${LIBRARIES} ./cmd/client/main.c -std=c99 -lpthread -Wall  -lnsl
@@ -44,7 +44,7 @@ run-client: client
 	- $(CLEAR)
 	- ./bin/client ${SERVER_IP} ${SERVER_PORT}
 
-server: clean
+server: 
 	- $(CLEAR)
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/server
