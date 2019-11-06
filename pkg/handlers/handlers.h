@@ -25,29 +25,6 @@ static char*  ROOT_DIR = "./";
 
 // https://www.ibm.com/support/knowledgecenter/en/SSVSD8_8.4.1/com.ibm.websphere.dtx.dsgnstud.doc/references/r_design_studio_intro_Hex_Decimal_and_Symbol_Values.htm
 
-typedef enum {
-  // 'A' in hex
-  ECHO_REQUEST = 0x0042,
-  // 'a' in hex
-  ECHO_REPLY = 0x0062,
-  // 'D' in hex
-  DOWNLOAD_REQUEST = 0x0044,
-  // 'U' in hex
-  UPLOAD_REQUEST = 0x0055,
-  // 'R' in hex
-  READY_REPLY = 0x0052,
-  // 'F' in hex
-  FILE_REPLY = 0x0046,
-  // 'P' in hex
-  CHANGE_DIR_REQUEST = 0x0050,
-  // 'L' in hex
-  LIST_DIR_REQUEST = 0x004C,
-  // 'l' in hex
-  LIST_DIR_REPLY = 0x006C,
-  //   'E' in hex
-  ERROR_MESSAGE = 0x0045,
-  UNKNOWN_TYPE = 0xFFFF
-} MessageType;
 // RequestHandler - this is the main method
 // that reads messages from queue and based on
 // their protocol, it would redirect them to the approporiate

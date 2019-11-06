@@ -29,7 +29,7 @@ void *ServerRequestHandler(void *arg) {
             DownloadProtocolServerHandler(socket, message);
           break;
         }
-        case UPLOAD_REQUEST: {
+        case FILE_REPLY: {
           printf("[DEBUG] Server Recieved Upload Request\n");
             UploadProtocolServerHandler(socket, message);
           break;
@@ -44,6 +44,7 @@ void *ServerRequestHandler(void *arg) {
           ListDirectoryProtocolServerHandler(socket, message);
           break;
         }
+        
         default: {
           break;
         }
