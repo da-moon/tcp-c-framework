@@ -105,13 +105,30 @@ void Loop(int socket) {
               printf("Your choice is Echo Protocol\n");
               EchoProtocolSendRequestToServer(socket);
             }
-            // Echo-----------------------------------------------------------------------------------------
+            // Download-----------------------------------------------------------------------------------------
             if (!bcmp(choice, "2", 1)) {
               printf("Your choice is Download Protocol\n");
               DownloadProtocolSendRequestToServer(socket);
             }
+            // Upload-----------------------------------------------------------------------------------------
+            if (!bcmp(choice, "3", 1)) {
+              printf("Your choice is Upload Protocol\n");
+              UploadProtocolSendRequestToServer(socket);
+            }
+            // Change
+            // Directory-----------------------------------------------------------------------------------------
+
+            if (!bcmp(choice, "4", 1)) {
+              printf("Your choice is ChangeDirectory Protocol\n");
+              ChangeDirectoryProtocolSendRequestToServer(socket);
+            }
+            // List
+            // Directory-----------------------------------------------------------------------------------------
+            if (!bcmp(choice, "5", 1)) {
+              printf("Your choice is List Directory Protocol\n");
+              ListDirectoryProtocolSendRequestToServer(socket);
+            }
           }
-          printf("MSG WAS SENT SUCCEFULLY\n");
         }
         continue;
       }

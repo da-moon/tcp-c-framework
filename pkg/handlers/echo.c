@@ -21,5 +21,5 @@ void EchoProtocolServerHandler(int socket, Message message) {
   int mesg_length = MarshallMessage(reply, 0xC0DE, ECHO_REPLY, arr_ptr);
   if (send(socket, reply, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
-  fprintf(stderr, "[DEBUG] Echo Handler Server : Replying bac .... \n");
+  fprintf(stderr, "[DEBUG] Echo Handler Server : Replying back .... \n");
 }

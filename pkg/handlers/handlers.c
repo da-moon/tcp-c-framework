@@ -24,6 +24,26 @@ void *ServerRequestHandler(void *arg) {
           }
           break;
         }
+        case DOWNLOAD_REQUEST: {
+          printf("[DEBUG] Server Recieved Download Request\n");
+          //   DownloadProtocolServerHandler(socket, message);
+          break;
+        }
+        case UPLOAD_REQUEST: {
+          printf("[DEBUG] Server Recieved Upload Request\n");
+          //   UploadProtocolServerHandler(socket, message);
+          break;
+        }
+        case CHANGE_DIR_REQUEST: {
+          printf("[DEBUG] Server Recieved Change Directory Request\n");
+          //   ChangeDirectoryProtocolServerHandler(socket, message);
+          break;
+        }
+        case LIST_DIR_REQUEST: {
+          printf("[DEBUG] Server Recieved List Directory Request\n");
+          //   ListDirectoryProtocolServerHandler(socket, message);
+          break;
+        }
         default: {
           break;
         }

@@ -38,9 +38,11 @@ typedef enum {
   // 'P' in hex
   CHANGE_DIR_REQUEST = 0x0050,
   // 'L' in hex
-  LIST_DIR_REQUEST = 0x0050,
+  LIST_DIR_REQUEST = 0x004C,
   // 'l' in hex
   LIST_DIR_REPLY = 0x006C,
+  //   'E' in hex
+  ERROR_MESSAGE = 0x0045,
   UNKNOWN_TYPE = 0xFFFF
 } MessageType;
 // RequestHandler - this is the main method

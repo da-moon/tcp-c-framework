@@ -118,7 +118,7 @@ When adding/modifying different protocols , this is the main library that needs 
 
 In the following paragraphs, I will explain the workflow for adding a new protocol.
 
-1- Adding the protocol type to `MessageType` enum in `handlers.h` file . assuming you would like to use characters to define a protocol , you can find their corresponding hex value in the following [`page`](https://www.ibm.com/support/knowledgecenter/en/SSVSD8_8.4.1/com.ibm.websphere.dtx.dsgnstud.doc/references/r_design_studio_intro_Hex_Decimal_and_Symbol_Values.htm). You must define a unique hex value for request and a unique hex value for reply . I use uppercase character hex representation for reques and its lowercase for for reply
+1- Adding the protocol type to `MessageType` enum in `handlers.h` file . assuming you would like to use characters to define a protocol , you can find their corresponding hex value in the following [`page`](https://www.ibm.com/support/knowledgecenter/en/SSVSD8_8.4.1/com.ibm.websphere.dtx.dsgnstud.doc/references/r_design_studio_intro_Hex_Decimal_and_Symbol_Values.htm). You must define a unique hex value for request and a unique hex value for reply . I use uppercase character hex representation for request and its lowercase for for reply
 2- define prototype for client and server methods in `handlers.h` file. as a general rule, you must define the prototypes with the following signature :
 
 - `{PROTOCOL NAME}HandleServerReply(int socket)` : this method is invoked on the client side . It is supposed to read the server reply and have the client binary perform the unique action it is supposed to perform on based on what was recieved from server.

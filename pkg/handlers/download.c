@@ -14,7 +14,7 @@ void DownloadProtocolSendRequestToServer(int socket) {
   if (send(socket, request, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
   fprintf(stderr,
-          "[DEBUG] client : sending download reques for file %s to server\n",
+          "[DEBUG] client : sending download request for file %s to server\n",
           message.body);
 }
 void DownloadProtocolServerHandler(int socket, Message message) {
@@ -25,5 +25,5 @@ void DownloadProtocolServerHandler(int socket, Message message) {
   int mesg_length = MarshallMessage(reply, 0xC0DE, FILE_REPLY, arr_ptr);
   if (send(socket, reply, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
-  fprintf(stderr, "[DEBUG] Echo Handler Server : Replying bac .... \n");
+  fprintf(stderr, "[DEBUG] Download Handler Server : Replying back .... \n");
 }

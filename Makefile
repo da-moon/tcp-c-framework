@@ -44,7 +44,7 @@ run-client: client
 	- $(CLEAR)
 	- ./bin/client ${SERVER_IP} ${SERVER_PORT}
 
-server: 
+server: clean
 	- $(CLEAR)
 	- $(MKDIR) ./bin
 	- $(RM) ./bin/server

@@ -12,7 +12,8 @@ void ChangeDirectoryProtocolSendRequestToServer(int socket) {
   if (send(socket, request, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
   fprintf(stderr,
-          "[DEBUG] client : sending download reques for file %s to server\n",
+          "[DEBUG] client : sending change directory request for file %s to "
+          "server\n",
           message.body);
 }
 void ChangeDirectoryProtocolServerHandler(int socket, Message message) {
@@ -22,5 +23,6 @@ void ChangeDirectoryProtocolServerHandler(int socket, Message message) {
   int mesg_length = MarshallMessage(reply, 0xC0DE, message.protocol, arr_ptr);
   if (send(socket, reply, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
-  fprintf(stderr, "[DEBUG] Echo Handler Server : Replying bac .... \n");
+  fprintf(stderr,
+          "[DEBUG] Change Directory Handler Server : Replying back .... \n");
 }
