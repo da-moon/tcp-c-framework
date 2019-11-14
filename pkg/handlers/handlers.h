@@ -17,11 +17,11 @@
 
 #include "../message/message.h"
 #include "wire.h"
+#include <dirent.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-static char*  ROOT_DIR = "./"; 
 
 // https://www.ibm.com/support/knowledgecenter/en/SSVSD8_8.4.1/com.ibm.websphere.dtx.dsgnstud.doc/references/r_design_studio_intro_Hex_Decimal_and_Symbol_Values.htm
 
@@ -38,7 +38,9 @@ void DownloadProtocolServerHandler(int socket, Message message);
 void UploadProtocolSendRequestToServer(int socket);
 void UploadProtocolServerHandler(int socket, Message message);
 void ChangeDirectoryProtocolSendRequestToServer(int socket);
-void ChangeDirectoryProtocolServerHandler(int socket, Message message);
+void ChangeDirectoryProtocolServerHandler(int socket, char *dir_path,
+                                          Message message);
 void ListDirectoryProtocolSendRequestToServer(int socket);
-void ListDirectoryProtocolServerHandler(int socket, Message message);
+void ListDirectoryProtocolServerHandler(int socket, char *dir_path,
+                                        Message message);
 #endif

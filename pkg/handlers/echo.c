@@ -4,7 +4,7 @@ void EchoProtocolSendRequestToServer(int socket) {
   char input[MAX_BUFFER];
   fgets(input, MAX_BUFFER - 1, stdin);
   char *arr_ptr = &input[0];
-    arr_ptr[strlen(arr_ptr) - 1] = '\0';
+  arr_ptr[strlen(arr_ptr) - 1] = '\0';
 
   char *request = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
   int mesg_length = MarshallMessage(request, 0xC0DE, ECHO_REQUEST, input);
@@ -15,6 +15,7 @@ void EchoProtocolSendRequestToServer(int socket) {
     perror("write failed: ");
   fprintf(stderr, "[DEBUG] client : Echoing .... \n");
 }
+
 void EchoProtocolServerHandler(int socket, Message message) {
   char *arr_ptr = &message.body[0];
   int payload_length = strlen(arr_ptr);

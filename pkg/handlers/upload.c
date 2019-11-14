@@ -1,6 +1,5 @@
 #include "handlers.h"
-void UploadProtocolSendRequestToServer(int socket)
-{
+void UploadProtocolSendRequestToServer(int socket) {
   printf("Enter File Name for upload\n");
   char input[MAX_BUFFER];
   fgets(input, MAX_BUFFER - 1, stdin);
@@ -12,8 +11,7 @@ void UploadProtocolSendRequestToServer(int socket)
   message.body = (char *)(request + PROTOCOL_HEADER_LEN);
 }
 
-void UploadProtocolServerHandler(int socket, Message message)
-{
+void UploadProtocolServerHandler(int socket, Message message) {
   fprintf(stderr, "[ File Upload ] : [ %s ]", message.body);
   // the following would store the file ...
   FILE *fp;

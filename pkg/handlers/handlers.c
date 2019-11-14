@@ -1,7 +1,10 @@
 #include "handlers.h"
+#include <string.h>
 
 void *ServerRequestHandler(void *arg) {
   Multiplexer *mux = (Multiplexer *)arg;
+  memset(mux->dir, 0, 256);
+  strcpy(mux->dir, "./");
   while (1) {
     // Obtain lock and pop message from Queue when not empty
     pthread_mutex_lock((mux->Queue)->mutex);
@@ -26,25 +29,24 @@ void *ServerRequestHandler(void *arg) {
         }
         case DOWNLOAD_REQUEST: {
           printf("[DEBUG] Server Recieved Download Request\n");
-            DownloadProtocolServerHandler(socket, message);
+          DownloadProtocolServerHandler(socket, message);
           break;
         }
         case FILE_REPLY: {
           printf("[DEBUG] Server Recieved Upload Request\n");
-            UploadProtocolServerHandler(socket, message);
+          UploadProtocolServerHandler(socket, message);
           break;
         }
         case CHANGE_DIR_REQUEST: {
           printf("[DEBUG] Server Recieved Change Directory Request\n");
-            ChangeDirectoryProtocolServerHandler(socket, message);
+          ChangeDirectoryProtocolServerHandler(socket, mux->dir, message);
           break;
         }
         case LIST_DIR_REQUEST: {
           printf("[DEBUG] Server Recieved List Directory Request\n");
-          ListDirectoryProtocolServerHandler(socket, message);
+          ListDirectoryProtocolServerHandler(socket, mux->dir, message);
           break;
         }
-        
         default: {
           break;
         }

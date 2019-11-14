@@ -4,9 +4,11 @@
 #include "../queue/queue.h"
 #include "../shared/consts.h"
 #include "../shared/utils.h"
-
 #include <ctype.h>
+#include <dirent.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 // accept
 #include <netdb.h>
 // strcmp
@@ -28,7 +30,7 @@ typedef struct {
   fd_set readFds;
   Connection *conn;
   pthread_mutex_t *clientListMutex;
-
+  char dir[256];
   QUEUE Queue *Queue;
   // clientSocketFd is used to have a local copy of
   // the socket per connection

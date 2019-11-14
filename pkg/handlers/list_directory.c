@@ -8,7 +8,7 @@ void ListDirectoryProtocolSendRequestToServer(int socket) {
   printf("Enter Directory name For server list\n");
   char input[MAX_BUFFER];
   fgets(input, MAX_BUFFER - 1, stdin);
-  char *arr_ptr = &input[0];
+  char *arr_ptr = Trim(&input[0]);
   char *request = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
   int mesg_length = MarshallMessage(request, 0xC0DE, LIST_DIR_REQUEST, arr_ptr);
   Message message;
@@ -19,18 +19,23 @@ void ListDirectoryProtocolSendRequestToServer(int socket) {
   fprintf(
       stderr,
       "[DEBUG] client : sending list directory request for file %s to server\n",
-      message.body);
+      Trim(arr_ptr));
 }
-void ListDirectoryProtocolServerHandler(int socket, Message message) {
-
+void ListDirectoryProtocolServerHandler(int socket, char *dir_path,
+                                        Message message) {
+  char buf[256];
+  sscanf(dir_path, "%s", buf);
   //  dir (pointer) -  used for keeping track of the current directory name.
   DIR *dir;
   char payload[MAX_BUFFER];
   uint16_t protocol;
-  char buf[256];
-  sscanf(message.body, "%s", buf); // Trimming on both sides occurs here
-        
+  if (Trim(message.body) != NULL) {
+
+    sscanf(Trim(message.body), "%s",
+           buf); // Trimming on both sides occurs here
+  }
   dir = opendir(buf);
+
   // If the directory exists.
   if (dir != NULL) {
     struct dirent *ent;
@@ -39,14 +44,13 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
     // present.
     while ((ent = readdir(dir)) != NULL) {
       char temp[256];
-      memset(temp,0,256);
+      memset(temp, 0, 256);
 
       // Prints all of the data to the console.
       sscanf(ent->d_name, "%s\n",
              temp); // Trimming on both sides occurs here
       strcat(payload, temp);
       strcat(payload, " | ");
-      
     }
     closedir(dir);
   }
@@ -60,18 +64,18 @@ void ListDirectoryProtocolServerHandler(int socket, Message message) {
     closedir(dir);
   }
 
-  char *arr_ptr = &payload[0];
+  char *arr_ptr = Trim(&payload[0]);
+
   int payload_length = strlen(arr_ptr);
 
   char *reply = malloc(strlen(arr_ptr) + PROTOCOL_HEADER_LEN);
   int mesg_length = MarshallMessage(reply, 0xC0DE, protocol, arr_ptr);
   if (send(socket, reply, strlen(arr_ptr) + PROTOCOL_HEADER_LEN, 0) == -1)
     perror("write failed: ");
-    memset(reply, 0, sizeof(reply));
-    memset(arr_ptr, 0, sizeof(arr_ptr));
-    // memset(payload, 0, sizeof(payload));
-
+  memset(reply, 0, sizeof(reply));
+  memset(arr_ptr, 0, sizeof(arr_ptr));
+  //   memset(payload, 0, sizeof(payload));
+  dir = NULL;
   fprintf(stderr,
           "[DEBUG] List Directory Handler Server : Replying back .... \n");
-          
 }
